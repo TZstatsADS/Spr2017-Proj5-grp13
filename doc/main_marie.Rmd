@@ -32,6 +32,7 @@ The dataset ... too include(Brazil, state of Espirito Santo - Public Sector - Pr
 
 ```{r}
 library(plyr)
+library(ggplot2)
 ```
 
 **Step 1: Load Dataset**
@@ -73,17 +74,19 @@ summary(dataset)
 ```{r}
 # Data Cleaning
 
-# age: The Age shouldn't be negative, we will remove those rows. 
+# Age: The Age shouldn't be negative, we will remove those rows. 
 dataset <- dataset[dataset$age>0,]
-# dayofweek_apptmt: We don't know if this variable is linked to the registration date or the apointment date - we will delete it and use the raw columns only
+
+# Appointment day of the week: We don't know if this variable is linked to the registration date or the apointment date - we will delete it and use the raw columns only
 dataset$dayofweek_apptmt <- NULL
-# daydiff_regist_appt: We will convert this value to be positive
+
+# Number of days between registration time and appointment date: We will convert this value to be positive
 dataset$daydiff_regist_appt <- -(dataset$daydiff_regist_appt)
-# show-up: 
+
+# Show-up / No-Show: 
 dataset$show_up <- revalue(dataset$show_up, c("No-Show"=0, "Show-Up"=1))
 
-# clean dates:
-
+# clean dates and time:
 ## Appt Registration Date
 dataset$appointment_registration = as.POSIXct(as.character(dataset$appointment_registration),"%Y-%m-%d T%H:%M:%SZ",tz = "Brazil/East")
 
@@ -106,22 +109,22 @@ dataset = mutate(d, month_appointment = as.numeric(format(dataset$appointment_da
 dataset = mutate(d, date_appointment = as.numeric(format(dataset$appointment_data,"%D")))
 dataset = mutate(d, day_of_year_appointment = as.numeric(format(dataset$appointment_data,"%j")))
 dataset = mutate(d, week_of_year_appointment = as.numeric(format(dataset$appointment_data,"%U")))
-
-
 ```
 
 
-** Step 3:
+**Step 3: First Exploration**
 ```{r}
 # Number of rows
 nb_rows <- nrow(dataset)
+```
 
-# Features available
-names(dataset)
-
-# What we will predict
-# Unbalanced Classes
-summary(as.factor(dataset$Status))
-
+Prediction Variable: Let's first analyse the prediction variabla alone
+```{r}
+ggplot(dataset, aes(x = show_up, fill=show_up)) +
+  geom_bar() +
+  ggtitle("Number of Patients Showing Up") +
+  ylab("Count") +
+  xlab("Show-up") + 
+  scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 ```
 
