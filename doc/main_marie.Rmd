@@ -30,7 +30,8 @@ The dataset ... too include(Brazil, state of Espirito Santo - Public Sector - Pr
 
 **Step 0: Load Packages**
 
-```{r}
+```{r, warning=FALSE}
+library(dplyr)
 library(plyr)
 library(ggplot2)
 ```
@@ -88,27 +89,30 @@ dataset$show_up <- revalue(dataset$show_up, c("No-Show"=0, "Show-Up"=1))
 
 # clean dates and time:
 ## Appt Registration Date
-dataset$appointment_registration = as.POSIXct(as.character(dataset$appointment_registration),"%Y-%m-%d T%H:%M:%SZ",tz = "Brazil/East")
+dataset$appointment_registration <- as.POSIXct(as.character(dataset$appointment_registration), 
+                                               "%Y-%m-%d T%H:%M:%SZ", 
+                                               tz ="Brazil/East")
 
-dataset = mutate(d, weekday_registration = as.factor(format(dataset$appointment_registration,"%a")))
-dataset = mutate(d, day_registration = as.numeric(as.integer(format(dataset$appointment_registration,"%d"))))
-dataset = mutate(d, month_registration = as.numeric(format(dataset$appointment_registration,"%m")))
-dataset = mutate(d, date_registration = as.numeric(format(dataset$appointment_registration,"%D")))
-dataset = mutate(d, hour_registration = as.numeric(format(dataset$appointment_registration,"%H")))
-dataset = mutate(d, minute_registration = as.numeric(format(dataset$appointment_registration,"%M")))
-dataset = mutate(d, day_of_year_registration = as.numeric(format(dataset$appointment_registration,"%j")))
-dataset = mutate(d, week_of_year_registration = as.numeric(format(dataset$appointment_registration,"%U")))
-dataset = mutate(d, am_pm_registration = as.factor(format(dataset$appointment_registration,"%p")))
+dataset$weekday_registration <- as.factor(format(dataset$appointment_registration, "%a"))
+dataset$day_registration <- as.numeric(as.integer(format(dataset$appointment_registration, 
+                                                         "%d")))
+dataset$month_registration <- as.numeric(format(dataset$appointment_registration, "%m"))
+dataset$hour_registration <- as.numeric(format(dataset$appointment_registration,"%H"))
+dataset$minute_registration <- as.numeric(format(dataset$appointment_registration,"%M"))
+dataset$day_of_year_registration <- as.numeric(format(dataset$appointment_registration,"%j"))
+dataset$week_of_year_registration <- as.numeric(format(dataset$appointment_registration,"%U"))
+dataset$am_pm_registration <- as.factor(format(dataset$appointment_registration,"%p"))
 
 #Appt Actual Date
-dataset$appointment_data = as.POSIXct(as.character(dataset$appointment_data),"%Y-%m-%d T%H:%M:%SZ",tz = "Brazil/East")
+dataset$appointment_data <- as.POSIXct(as.character(dataset$appointment_date), 
+                                       "%Y-%m-%d T%H:%M:%SZ", 
+                                       tz = "Brazil/East")
 
-dataset = mutate(d, weekday_appointment = as.factor(format(dataset$appointment_data,"%a")))
-dataset = mutate(d, day_appointment = as.numeric(as.integer(format(dataset$appointment_data,"%d"))))
-dataset = mutate(d, month_appointment = as.numeric(format(dataset$appointment_data,"%m")))
-dataset = mutate(d, date_appointment = as.numeric(format(dataset$appointment_data,"%D")))
-dataset = mutate(d, day_of_year_appointment = as.numeric(format(dataset$appointment_data,"%j")))
-dataset = mutate(d, week_of_year_appointment = as.numeric(format(dataset$appointment_data,"%U")))
+dataset$weekday_appointment <- as.factor(format(dataset$appointment_data,"%a"))
+dataset$day_appointment <- as.numeric(as.integer(format(dataset$appointment_data,"%d")))
+dataset$month_appointment <- as.numeric(format(dataset$appointment_data,"%m"))
+dataset$day_of_year_appointment <- as.numeric(format(dataset$appointment_data,"%j"))
+dataset$week_of_year_appointment <- as.numeric(format(dataset$appointment_data,"%U"))
 ```
 
 
