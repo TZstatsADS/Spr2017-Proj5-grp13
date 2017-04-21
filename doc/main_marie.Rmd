@@ -30,6 +30,10 @@ The dataset ... too include(Brazil, state of Espirito Santo - Public Sector - Pr
 
 **Step 0: Load Packages**
 
+```{r}
+library(plyr)
+```
+
 **Step 1: Load Dataset**
 ```{r}
 dataset <- read.csv("../data/No-show-Issue-Comma-300k.csv")
@@ -76,11 +80,7 @@ dataset$dayofweek_apptmt <- NULL
 # daydiff_regist_appt: We will convert this value to be positive
 dataset$daydiff_regist_appt <- -(dataset$daydiff_regist_appt)
 # show-up: 
-levels(dataset$show_up)
-library(plyr)
 dataset$show_up <- revalue(dataset$show_up, c("No-Show"=0, "Show-Up"=1))
-levels(Cancer)[1]<-"1"
-levels(Cancer)[2]<-"2"
 # dates
 
 ```
