@@ -104,15 +104,15 @@ dataset$week_of_year_registration <- as.numeric(format(dataset$appointment_regis
 dataset$am_pm_registration <- as.factor(format(dataset$appointment_registration,"%p"))
 
 #Appt Actual Date
-dataset$appointment_data <- as.POSIXct(as.character(dataset$appointment_date), 
+dataset$appointment_date <- as.POSIXct(as.character(dataset$appointment_date), 
                                        "%Y-%m-%d T%H:%M:%SZ", 
                                        tz = "Brazil/East")
 
-dataset$weekday_appointment <- as.factor(format(dataset$appointment_data,"%a"))
-dataset$day_appointment <- as.numeric(as.integer(format(dataset$appointment_data,"%d")))
-dataset$month_appointment <- as.numeric(format(dataset$appointment_data,"%m"))
-dataset$day_of_year_appointment <- as.numeric(format(dataset$appointment_data,"%j"))
-dataset$week_of_year_appointment <- as.numeric(format(dataset$appointment_data,"%U"))
+dataset$weekday_appointment <- as.factor(format(dataset$appointment_date,"%a"))
+dataset$day_appointment <- as.numeric(as.integer(format(dataset$appointment_date,"%d")))
+dataset$month_appointment <- as.numeric(format(dataset$appointment_date,"%m"))
+dataset$day_of_year_appointment <- as.numeric(format(dataset$appointment_date,"%j"))
+dataset$week_of_year_appointment <- as.numeric(format(dataset$appointment_date,"%U"))
 ```
 
 
@@ -131,4 +131,9 @@ ggplot(dataset, aes(x = show_up, fill=show_up)) +
   xlab("Show-up") + 
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 ```
+The proportion of people not showing up is very high.   
+From a data science point of view, we still have unbalanced classes, we will have to deal with it when doing predictions.  
+
+Which Dates have we access to? 
+
 
