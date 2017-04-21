@@ -86,7 +86,7 @@ dataset$show_up <- revalue(dataset$show_up, c("No-Show"=0, "Show-Up"=1))
 ```
 
 
-** Step 3:
+**Step 3: First Exploration**
 ```{r}
 # Number of rows
 nb_rows <- nrow(dataset)
