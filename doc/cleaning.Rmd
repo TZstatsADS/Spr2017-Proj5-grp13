@@ -15,9 +15,11 @@ Load data, rename columns
 ```{r}
 data <- read.csv("../data/No-show-Issue-Comma-300k.csv")
 
-colnames(data) <- c("age", "gender", "appointment_registration", "appointment_data", "dayofweek_apptmt", "showedup",
+colnames(data) <- c("age", "gender", "appointment_registration", "appointment_data", "dayofweek_apptmt", "show_up",
                     "diabetes", "alcoholism", "hypertension", "handicap", "smoker", "scholarship", "tuberculosis",
                     "sms_reminder", "daydiff_regist_appt")
+
+d <- data
 
 ```
 
@@ -27,28 +29,33 @@ Clean up dates
 ```{r}
 #Registration
 
-d$AppointmentRegistration = as.POSIXct(as.character(d$AppointmentRegistration),"%Y-%m-%d T%H:%M:%SZ",tz = "Brazil/East")
+d$appointment_registration = as.POSIXct(as.character(d$appointment_registration),"%Y-%m-%d T%H:%M:%SZ",tz = "Brazil/East")
 
-d = mutate(d, weekday_registration = as.factor(format(d$AppointmentRegistration,"%a")))
-d = mutate(d, day_registration = as.factor(as.integer(format(d$AppointmentRegistration,"%d"))))
-d = mutate(d, month_registration = as.factor(format(d$AppointmentRegistration,"%m")))
-d = mutate(d, date_registration = as.factor(format(d$AppointmentRegistration,"%D")))
-d = mutate(d, hour_registration = as.factor(format(d$AppointmentRegistration,"%H")))
-d = mutate(d, minute_registration = as.factor(format(d$AppointmentRegistration,"%M")))
-d = mutate(d, day_of_year_registration = as.factor(format(d$AppointmentRegistration,"%j")))
-d = mutate(d, week_of_year_registration = as.factor(format(d$AppointmentRegistration,"%U")))
-d = mutate(d, am_pm_registration = as.factor(format(d$AppointmentRegistration,"%p")))
+d = mutate(d, weekday_registration = as.factor(format(d$appointment_registration,"%a")))
+d = mutate(d, day_registration = as.numeric(as.integer(format(d$appointment_registration,"%d"))))
+d = mutate(d, month_registration = as.numeric(format(d$appointment_registration,"%m")))
+d = mutate(d, date_registration = as.numeric(format(d$appointment_registration,"%D")))
+d = mutate(d, hour_registration = as.numeric(format(d$appointment_registration,"%H")))
+d = mutate(d, minute_registration = as.numeric(format(d$appointment_registration,"%M")))
+d = mutate(d, day_of_year_registration = as.numeric(format(d$appointment_registration,"%j")))
+d = mutate(d, week_of_year_registration = as.numeric(format(d$appointment_registration,"%U")))
+d = mutate(d, am_pm_registration = as.factor(format(d$appointment_registration,"%p")))
 
 #Appointment
 
-d$ApointmentData = as.POSIXct(as.character(d$ApointmentData),"%Y-%m-%d T%H:%M:%SZ",tz = "Brazil/East")
+d$appointment_data = as.POSIXct(as.character(d$appointment_data),"%Y-%m-%d T%H:%M:%SZ",tz = "Brazil/East")
 
-d = mutate(d, weekday_appointment = as.factor(format(d$ApointmentData,"%a")))
-d = mutate(d, day_appointment = as.factor(as.integer(format(d$ApointmentData,"%d"))))
-d = mutate(d, month_appointment = as.factor(format(d$ApointmentData,"%m")))
-d = mutate(d, date_appointment = as.factor(format(d$ApointmentData,"%D")))
-d = mutate(d, day_of_year_appointment = as.factor(format(d$ApointmentData,"%j")))
-d = mutate(d, week_of_year_appointment = as.factor(format(d$ApointmentData,"%U")))
+d = mutate(d, weekday_appointment = as.factor(format(d$appointment_data,"%a")))
+d = mutate(d, day_appointment = as.numeric(as.integer(format(d$appointment_data,"%d"))))
+d = mutate(d, month_appointment = as.numeric(format(d$appointment_data,"%m")))
+d = mutate(d, date_appointment = as.numeric(format(d$appointment_data,"%D")))
+d = mutate(d, day_of_year_appointment = as.numeric(format(d$appointment_data,"%j")))
+d = mutate(d, week_of_year_appointment = as.numeric(format(d$appointment_data,"%U")))
 
 ```
+
+```{r}
+plot(d$day_of_year_appointment, d$day_of_year_registration, col = d$show_up)
+```
+
 
