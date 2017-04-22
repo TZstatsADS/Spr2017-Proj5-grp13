@@ -9,22 +9,25 @@ output: html_notebook
 
 
 ## Dataset Description
-The dataset ... too include(Brazil, state of Espirito Santo - Public Sector - Primary Care)
+Those data have been recorded in Brazil, in the state of Espirito Santo. Datapoints are only from the public sector, primary care.  
+
 *Description of the dataset*
-- Age: Age of the patient
-- Gender: Gender of the patient
-- AppointmentRegistration: Time and date when the patient took the appointment
-- AppointmentData: Date of the appointment
-- Diabetes: Is the patient affected by diabetes? (0/1)
-- Alcoolism: is the patient alcoolic? (0/1)
-- Hipertension: Is the patient affected by hypertension? (0/1)
-- Handcap: 
-- Smokes: Is the patient smoking? (0/1)
-- Scholarship: Is the patient receiving a scholarship? Those scholarships are given by Bolsa Familia to low income families who accept to send their kids to school nd have them vaccinated. 
-- Tuberculosis: Is the patient affected by tuberculosis? (0/1)
-- AwaitingTime: How many days the patient waited between the appointment registration and the date of the appointment
-- Status: Did the patient show-up or not? (No-Show/Show-Up)
+- Age: Age of the patient  
+- Gender: Gender of the patient  
+- AppointmentRegistration: Time and date when the patient took the appointment  
+- AppointmentData: Date of the appointment  
+- Diabetes: Is the patient affected by diabetes? (0/1)  
+- Alcoolism: is the patient alcoolic? (0/1)  
+- Hipertension: Is the patient affected by hypertension? (0/1)  
+- Handicap: Level of handicap of the aptient (0/1/2/3/4)  
+- Smokes: Is the patient smoking? (0/1)    
+- Scholarship: Is the patient receiving a scholarship? Those scholarships are given by Bolsa Familia to low income families who accept to send their kids to school nd have them vaccinated.   
+- Tuberculosis: Is the patient affected by tuberculosis? (0/1)  
+- AwaitingTime: How many days the patient waited between the appointment registration and the date of the appointment  
+- Status: Did the patient show-up or not? (No-Show/Show-Up)  
+  
 *Source*
+It's a kaggle dataset which have been taken here. https://www.kaggle.com/joniarroba/noshowappointments
 
 ## Data Cleaning
 
@@ -327,6 +330,7 @@ smsreminder_ratio <- ggplot(dataset, aes(x=scholarship, fill=show_up)) +
 
 grid.arrange(smsreminder_number, smsreminder_ratio, ncol=2, top="Scholarship")
 ```
+We did explain at the beginning of this file what scholarship meant, it's basically linked to the level of income of the family. We see that this feature have a strong impact.  
 
 **Time Analysis**
 
