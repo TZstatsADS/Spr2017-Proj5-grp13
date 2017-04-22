@@ -1,5 +1,5 @@
 ---
-title: "Project 5 - Predicting Facebook Check-Ins"
+title: "R Notebook"
 output: html_notebook
 ---
 
@@ -20,7 +20,7 @@ The dataset ... too include(Brazil, state of Espirito Santo - Public Sector - Pr
 - Hipertension: Is the patient affected by hypertension? (0/1)
 - Handcap: 
 - Smokes: Is the patient smoking? (0/1)
-- Scholarship: Is the patient receiving a scholarship? Those scholarships are given by Bolsa Familia to low income families who accept to send their kids to school nd have them vaccinated.
+- Scholarship: Is the patient receiving a scholarship? Those scholarships are given by Bolsa Familia to low income families who accept to send their kids to school nd have them vaccinated. 
 - Tuberculosis: Is the patient affected by tuberculosis? (0/1)
 - AwaitingTime: How many days the patient waited between the appointment registration and the date of the appointment
 - Status: Did the patient show-up or not? (No-Show/Show-Up)
@@ -30,12 +30,10 @@ The dataset ... too include(Brazil, state of Espirito Santo - Public Sector - Pr
 
 **Step 0: Load Packages**
 
-```{r, warning=FALSE}
-library(dplyr)
+```{r}
 library(plyr)
+library(dplyr)
 library(ggplot2)
-library(gridExtra)
-library(tidyr)
 ```
 
 **Step 1: Load Dataset**
@@ -117,14 +115,14 @@ dataset$day_of_year_appointment <- as.numeric(format(dataset$appointment_date,"%
 dataset$week_of_year_appointment <- as.numeric(format(dataset$appointment_date,"%U"))
 ```
 
-
 **Step 3: First Exploration**
 ```{r}
 # Number of rows
 nb_rows <- nrow(dataset)
 ```
+Number of samples: ...
 
-Prediction Variable: Let's first analyse the prediction variabla alone
+Prediction Variable: Let's first analyse the prediction variable alone
 ```{r}
 ggplot(dataset, aes(x = show_up, fill=show_up)) +
   geom_bar() +
@@ -133,143 +131,23 @@ ggplot(dataset, aes(x = show_up, fill=show_up)) +
   xlab("Show-up") + 
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 ```
-The proportion of people not showing up is very high.   
-From a data science point of view, we still have unbalanced classes, we will have to deal with it when doing predictions.  
 
-Which Dates have we access to? 
+On the 300k datapoints we have, one third of them are no Show Datapoints while the remaining part is show. 
 
-We have access to two years of data. 2/01/2014 to 30/12/2015
-Do we have the same number of data per week? 
-
-
+Date tof the data that we have
 ```{r}
 dataset %>% 
   group_by(appointment_date) %>% 
-  summarise(total_noshow=sum(show_up==0)/n()) %>% 
-  ggplot(aes(x=appointment_date, y=total_noshow)) + 
+  summarise(patients=n()) %>% 
+  ggplot(aes(x=appointment_date, y=patients)) + 
     geom_point(alpha=0.3) +
     xlab("Appointment Date") +
-    ylab("Percentage of No Show Per Day") +
-    ggtitle("Percentage of No Show Depending on the Date")
-```
-
- 
-There is no strong seasonality 
-
-Number of appoitnments per week
-```{r}
-dataset$year_appointment <- as.numeric(format(dataset$appointment_date,"%Y"))
-
-dataset %>% 
-  group_by(week_of_year_appointment, year_appointment) %>% 
-  summarise(patients=n()) %>% 
-  ggplot(aes(x=week_of_year_appointment, y=patients)) + 
-    geom_point(alpha=0.3) +
-    facet_grid(year_appointment ~ .) +
-    xlab("Week of the Year") +
-    ylab("Number of Appointments") +
-    ggtitle("Number of Appointments per Aeek")
-```
-
-SAme kind of seasonality for bothe years 
-Seems to have the same number of appointments per week.
-
-Hour Registration
-
-```{r}
-
-dataset %>% 
-  group_by(hour_registration) %>% 
-  summarise(show_up=sum(show_up==0),
-            no_show=sum(show_up==1)) %>% 
-  melt(id="hour_registration") %>%
-  ggplot(aes(x=hour_registration, y=value, colour=variable)) + 
-    geom_point(alpha=0.3) +
-    xlab("Week of the Year") +
-    ylab("Number of Appointments") +
-    ggtitle("Number of Appointments per Week")
-```
-
-```{r}
-ggplot(dataset, aes(x=hour_registration, fill=show_up)) + 
-  geom_density() + 
-  facet_grid(.~show_up)
-```
-
-Day Appointment
-```{r}
-ggplot(dataset, aes(x=weekday_appointment, fill=show_up)) + 
-  geom_density() + 
-  facet_grid(.~show_up)
-```
-
-```{r}
-ggplot(dataset, aes(x=weekday_appointment, fill=show_up)) + 
-  geom_density() + 
-  facet_grid(gender~show_up)
-```
-
-```{r}
-dataset %>% 
-  group_by(weekday_registration) %>% 
-  summarise(noshow_prop=sum(show_up==0)/n()) %>% 
-  ggplot(aes(x=weekday_registration, y=noshow_prop, fill=weekday_registration)) + 
-        geom_bar(stat="identity") + 
-        theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
-
-Gender Analysis
-```{r}
-ggplot(dataset, aes(x=hour_registration, fill=show_up)) + 
-  geom_density() + 
-  facet_grid(gender~show_up)
-```
-
-Age
-
-```{r}
-dataset %>% 
-  group_by(age) %>% 
-  summarise(nb_perage=n()) %>% 
-  ggplot(aes(x=age, y=nb_perage)) + 
-    geom_point(alpha=0.3) +
-    xlab("Age") +
     ylab("Number of Patients") +
-    ggtitle("Number of Patients depending on the Age")
+    ggtitle("Number of Patients per Date") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+2 Years data
+Number of appointments is around constant
 
-```{r}
-ggplot(dataset, aes(x=show_up, y=age, fill=show_up)) + 
-  geom_boxplot()
-```
 
-Health Conditions
-```{r}
-diabetes <- ggplot(dataset, aes(x=diabetes, fill=show_up)) + 
-  geom_bar()
-alcoholism <- ggplot(dataset, aes(x=alcoholism, fill=show_up)) + 
-  geom_bar()
-hypertension <- ggplot(dataset, aes(x=hypertension, fill=show_up)) + 
-  geom_bar()
-handicap <- ggplot(dataset, aes(x=handicap, fill=show_up)) + 
-  geom_bar()
-smoker <- ggplot(dataset, aes(x=smoker, fill=show_up)) + 
-  geom_bar()
-tuberculosis <- ggplot(dataset, aes(x=tuberculosis, fill=show_up)) + 
-  geom_bar()
-
-grid.arrange(diabetes, tuberculosis, hypertension, handicap, smoker,
-             alcoholism, ncol=2, top='Health Conditions')
-```
-
-SMS Reminder
-```{r}
-ggplot(dataset, aes(x=sms_reminder, fill=show_up)) + 
-  geom_bar(position="fill")
-```
-
-```{r}
-ggplot(dataset, aes(x=weekday_appointment, fill=show_up)) + 
-  geom_bar(position="fill")
-```
 
