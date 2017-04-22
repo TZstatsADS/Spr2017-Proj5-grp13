@@ -348,4 +348,157 @@ We did explain at the beginning of this file what scholarship meant, it's basica
 
 **Time Analysis**
 
+Quick exploration of the data first
+```{r}
+dataset$year_appointment <- as.numeric(format(dataset$appointment_date,"%Y"))
+
+dataset %>% 
+  group_by(day_of_year_appointment, year_appointment) %>% 
+  summarise(patients=n()) %>% 
+  ggplot(aes(x=day_of_year_appointment, y=patients)) + 
+    geom_point(alpha=0.3) +
+    geom_smooth(method = 'loess') +
+    facet_grid(year_appointment ~ .) +
+    xlab("Day of the Year") +
+    ylab("Number of Appointments") +
+    ggtitle("Number of Appointments per Day")
+```
+
+We observe a very small trend: people schedule slightly more medical appointment during the first half of the year. 
+
+Now, to explain a little bit how time influence our variable of interest, we show the evolution of the noshow ratio through the period we are studying.
+
+```{r}
+dataset %>% 
+  group_by(day_of_year_appointment, year_appointment) %>% 
+  summarise(total_noshow=sum(show_up==0)/n()) %>% 
+  ggplot(aes(x=day_of_year_appointment, y=total_noshow)) + 
+    geom_line(alpha=0.5, color = "red") +
+    geom_smooth(method = 'loess', se = FALSE, color = alpha('black',0.5)) +
+    facet_grid(year_appointment ~ .) +
+    xlab("Day of the Year") +
+    ylim(0,1) +
+    ylab("Number of Appointments") +
+    ggtitle("Number of Appointments per Day")
+```
+
+Using a daily granularity, we observe a high variance that make the graph difficult to interpret. Let's change for a weekly granularity.
+
+```{r}
+dataset %>% 
+  group_by(week_of_year_appointment, year_appointment) %>% 
+  summarise(total_noshow=sum(show_up==0)/n()) %>% 
+  ggplot(aes(x=week_of_year_appointment, y=total_noshow)) + 
+    geom_line(alpha=0.5, color = "red") +
+    geom_smooth(method = 'loess', se = FALSE, color = alpha('black',0.5)) +
+    facet_grid(year_appointment ~ .) +
+    xlab("Day of the Year") + 
+    ylim(0,1) +
+    ylab("Number of Appointments") +
+    ggtitle("Number of Appointments per Day")
+```
+
+On a weekly basis we have more or less the same observations: we don't see any correlation between the date and the no-show ratio having a year window. 
+
+The natural next step is to look at the same ratio vs weekdays. It sounds pretty intuitive that there are some information to extract.
+```{r}
+by_day_of_week = group_by(dataset, weekday_appointment)
+by_day = summarise(by_day_of_week, show = sum(show_up == 1), noshow = sum(show_up == 0))
+by_day$ratio = by_day$noshow / (by_day$show+ by_day$noshow)
+by_day$weekday_appointment = relevel(by_day$weekday_appointment, "Sun")
+by_day$weekday_appointment = relevel(by_day$weekday_appointment, "Sat")
+by_day$weekday_appointment = relevel(by_day$weekday_appointment, "Fri")
+by_day$weekday_appointment = relevel(by_day$weekday_appointment, "Thu")
+by_day$weekday_appointment = relevel(by_day$weekday_appointment, "Wed")
+by_day$weekday_appointment = relevel(by_day$weekday_appointment, "Tue")
+by_day$weekday_appointment = relevel(by_day$weekday_appointment, "Mon")
+
+qplot(weekday_appointment, ratio, data = by_day, geom = c("boxplot"), xlab = "")
+```
+
+We clearly see a trend here: The ratio is extremely high on Saturday! It jumps from 30 to 37%.  
+
+Let us have a look ot the moment in the day the patient make the appointment.
+```{r}
+by_hour = group_by(dataset, hour_registration)
+by_hour = summarise(by_hour, show = sum(show_up==1), noshow = sum(show_up == 0))
+by_hour$ratio = by_hour$noshow / (by_hour$show+ by_hour$noshow)
+
+g = ggplot(data = by_hour[by_hour$hour_registration>5,][by_hour$hour_registration<21,], aes(x = hour_registration, y = ratio)) + geom_line() + ylim(0,0.5) + xlab("Time") + ylab("Ratio")
+g
+```
+We notice that people calling very early (<6am) in the morning are less likely to not show up compare to people calling late at night (>7pm). 
+
+Another important aspect in the time dimention is the time difference between the moment they make the appointment and the appointment date. 
+```{r}
+by_diff = group_by(dataset, daydiff_regist_appt)
+by_diff = summarise(by_diff, show = sum(as.numeric(show_up)), noshow = sum(show_up == 0))
+by_diff$ratio = by_diff$noshow / by_diff$show
+
+g = ggplot(data = by_diff, aes(x = daydiff_regist_appt, y = ratio)) + geom_line() + xlab("Day Difference") + ylab("Ratio")
+g
+```
+
+We first notice that the curve is extremely heratic after a certain value due to the number of datapoint. Let us zoom in the 0-120 days window. 
+```{r}
+by_diff = group_by(dataset, daydiff_regist_appt)
+by_diff = summarise(by_diff, show = sum(show_up==1), noshow = sum(show_up == 0))
+by_diff$ratio = by_diff$noshow / (by_diff$show+by_diff$noshow)
+by_diff$daydiff_regist_appt_squared = by_diff$daydiff_regist_appt**2
+
+g = ggplot(data = by_diff[by_diff$daydiff_regist_appt<120,], aes(x = daydiff_regist_appt, y = ratio)) + geom_line() + geom_smooth(method = 'loess')
+g
+```
+
+It seems that we have a good model using a polynomial regression as follow:
+
+```{r}
+summary(lm(ratio~daydiff_regist_appt + daydiff_regist_appt_squared, by_diff[by_diff$daydiff_regist_appt<120,]))
+```
+
 **Weather Analysis**
+
+```{r}
+load("~/Desktop/Spr2017-Proj5-grp13-master/output/with_weather_dataset.RData")
+```
+
+```{r}
+by_precipitation_inches = group_by(dataset, appointment_date)
+by_precipitation_inches = summarise(by_precipitation_inches, show = sum(show_up==1), noshow = sum(show_up == 0), max_precipitation_inches = max(precipitation_inches), mean_precipitation_inches = mean(precipitation_inches))
+by_precipitation_inches$ratio = by_precipitation_inches$noshow / (by_precipitation_inches$show+by_precipitation_inches$noshow)
+
+qplot( max_precipitation_inches, ratio, data = by_precipitation_inches[by_precipitation_inches$max_precipitation_inches<2,]) + geom_smooth(show.legend = TRUE,method = 'lm')
+
+summary(lm(ratio~max_precipitation_inches, data = by_precipitation_inches[by_precipitation_inches$max_precipitation_inches<2,]))
+```
+
+```{r}
+by_temp = group_by(dataset, appointment_date)
+by_temp = summarise(by_temp, show = sum(show_up==1), noshow = sum(show_up == 0), max_temp = max(max_temp_faren),lowest_visibility = max(as.numeric(lowest_visibility_miles)), lowest_visibility = max(as.numeric(lowest_visibility_miles)), wind = max(max_wind_mph), max_precipitation_inches = max(precipitation_inches))
+by_temp$ratio = by_temp$noshow / (by_temp$show + by_temp$noshow)
+
+qplot( max_temp, ratio, data = by_temp) + geom_smooth(show.legend = TRUE,method = 'lm')
+
+summary(lm(ratio ~ max_temp, data = by_temp))
+```
+
+```{r}
+by_visibility = group_by(dataset, appointment_date)
+by_visibility = summarise(by_visibility, show = sum(show_up==1), noshow = sum(show_up == 0), lowest_visibility = max(as.numeric(lowest_visibility_miles)))
+by_visibility$ratio = by_visibility$noshow / (by_visibility$show + by_visibility$noshow)
+
+qplot( lowest_visibility, ratio, data = by_visibility) + geom_smooth(show.legend = TRUE,method = 'lm')
+
+summary(lm(ratio ~ lowest_visibility, data = by_visibility))
+```
+
+```{r}
+qplot( wind, ratio, data = by_temp) + geom_smooth(show.legend = TRUE,method = 'lm')
+
+summary(lm(ratio ~ wind, data = by_temp))
+```
+
+```{r}
+summary(lm(ratio ~ wind + lowest_visibility + max_temp + max_precipitation_inches, data = by_temp))
+```
+
