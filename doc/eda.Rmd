@@ -1,6 +1,9 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Project 5 - Title"
+author: "Team 13"
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 ## Project Description
@@ -11,7 +14,7 @@ output: html_notebook
 ## Dataset Description
 Those data have been recorded in Brazil, in the state of Espirito Santo. Datapoints are only from the public sector, primary care.  
 
-*Description of the dataset*
+*Description of the dataset*   
 - Age: Age of the patient  
 - Gender: Gender of the patient  
 - AppointmentRegistration: Time and date when the patient took the appointment  
@@ -26,19 +29,20 @@ Those data have been recorded in Brazil, in the state of Espirito Santo. Datapoi
 - AwaitingTime: How many days the patient waited between the appointment registration and the date of the appointment  
 - Status: Did the patient show-up or not? (No-Show/Show-Up)  
   
-*Source*
+*Source*    
 It's a kaggle dataset which have been taken here. https://www.kaggle.com/joniarroba/noshowappointments
 
 ## Data Cleaning
 
 **Step 0: Load Packages**
 
-```{r}
+```{r, message=FALSE}
 library(plyr)
 library(dplyr)
 library(ggplot2)
 library(reshape2)
 library(tidyr)
+library(gridExtra)
 ```
 
 **Step 1: Load Dataset**
@@ -125,11 +129,11 @@ dataset$week_of_year_appointment <- as.numeric(format(dataset$appointment_date,"
 ```{r}
 # Number of rows
 nb_rows <- nrow(dataset)
-```
+```  
 We have access to 300k datapoints.  
 
 **Prediction Variable**  
-Let's first analyse the prediction variable alone.  
+Let's first analyse the prediction variable alone.    
 ```{r}
 ggplot(dataset, aes(x = show_up, fill=show_up)) +
   geom_bar() +
@@ -138,11 +142,12 @@ ggplot(dataset, aes(x = show_up, fill=show_up)) +
   xlab("Show-up") + 
   scale_fill_discrete("Show-up", labels=c("No", "Yes")) +
   scale_x_discrete(labels=c("No", "Yes"))
-```
+```  
+
 On the 300k datapoints we have, one third of them are No-Show Datapoints.   
 From a data science point of view, we have unbalanced classes, we will have to deal with it when doing predictions.   
 
-**Timeframe & Number of Datapoints per Day**
+**Timeframe & Number of Datapoints per Day**   
 ```{r}
 dataset %>% 
   group_by(appointment_date) %>% 
@@ -153,10 +158,11 @@ dataset %>%
     ylab("Number of Patients") +
     ggtitle("Number of Patients per Date") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
+```   
+
 We have access to 2 years of data from January 2014 or December 2015. THe number of datapoints per date is around constant. Outliers are Sundays.  
 
-**Gender Analysis**
+**Gender Analysis**   
 ```{r}
 gender_number <- ggplot(dataset, aes(x=gender)) +
   geom_bar() +
@@ -170,10 +176,11 @@ gender_ratio <- ggplot(dataset, aes(x=gender, fill=show_up)) +
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 
 grid.arrange(gender_number, gender_ratio, ncol=2, top="Gender Analysis")
-```
+```    
+
 The first insight is that women are more often going to visit a physician. However the ration of no-show/show are realyy similar. Gender doesn't seem to play an important role.  
 
-**Age Analysis**
+**Age Analysis**   
 ```{r}
 dataset %>% 
   group_by(age) %>% 
@@ -183,9 +190,10 @@ dataset %>%
     xlab("Age") +
     ylab("Number of Patients") +
     ggtitle("Number of Patients depending on the Age")
-```
-On the first graph, we display the number of patient depending on the age to know what the sample we have look like. After 60 years old, people begin to die, and hence there are less patients. We see on the representation of the expectited living time of people in Brazil.  
+```     
 
+On the first graph, we display the number of patient depending on the age to know what the sample we have look like. After 60 years old, people begin to die, and hence there are less patients. We see on the representation of the expectited living time of people in Brazil.  
+   
 ```{r}
 ggplot(dataset, aes(x=show_up, y=age, fill=show_up)) + 
   geom_boxplot() +
@@ -194,9 +202,10 @@ ggplot(dataset, aes(x=show_up, y=age, fill=show_up)) +
   ggtitle("Number of Patients depending showing up depedning on the Age") +
   scale_fill_discrete("Show-up", labels=c("No", "Yes")) +
   scale_x_discrete(labels=c("No", "Yes"))
-```
-The age seems to be a important factor. The older the people are the more likely they are going to show up.  
+```    
 
+The age seems to be a important factor. The older the people are the more likely they are going to show up.    
+   
 ```{r}
 by_age <-
   dataset %>%
@@ -207,11 +216,11 @@ by_age$ratio = by_age$noshow / (by_age$show+by_age$noshow)
 ggplot(data = by_age, aes(x = age, y = ratio)) + 
   geom_line() + 
   geom_smooth(method = "glm")
+```    
 
-```
 Above, we can see the same trend. After 95 years old the figures are not significant because the sample is too small.  
-
-**Age & Gender Analysis**
+   
+**Age & Gender Analysis**   
 ```{r}
 ggplot(data = dataset, aes(x = age, fill = show_up)) + 
   geom_bar() + 
@@ -220,10 +229,11 @@ ggplot(data = dataset, aes(x = age, fill = show_up)) +
   ylab("Count") +
   ggtitle("Number of Patients depending showing up depedning on the Age and Gender") +
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
-```
-The ratio is similar between woman and man. We see again that women take more appointments. However we see that before 20 years old the numbe rof appointments and the trend is exactly the same.  
+```     
 
-**Health Conditions Analysis**
+The ratio is similar between woman and man. We see again that women take more appointments. However we see that before 20 years old the numbe rof appointments and the trend is exactly the same.    
+   
+**Health Conditions Analysis**   
 ```{r}
 diabetes <- ggplot(dataset, aes(x=diabetes, fill=show_up)) + 
   geom_bar(position="fill") +
@@ -257,11 +267,12 @@ tuberculosis <- ggplot(dataset, aes(x=tuberculosis, fill=show_up)) +
 
 grid.arrange(diabetes, tuberculosis, hypertension, handicap, smoker,
              alcoholism, ncol=2, top='Health Conditions')
-```
+```      
+
 Form this first anaysis, we can conclude that people having a handicap are more likely to show up, going further the more severe is there handicap the more likely they are going to show up. The same trand is observed for people havnig diabete or hypertension.  
 However for smokers, alcoholic people and people suffering from tuberculosis, the trend is reverse.  
 To validate this insights, we need to look at the samples size, which we are going to do below.  
-
+   
 ```{r}
 diabetes <- ggplot(dataset, aes(x=diabetes, fill=show_up)) + 
   geom_bar() +
@@ -295,10 +306,11 @@ tuberculosis <- ggplot(dataset, aes(x=tuberculosis, fill=show_up)) +
 
 grid.arrange(diabetes, tuberculosis, hypertension, handicap, smoker,
              alcoholism, ncol=2, top='Health Conditions')
-```
-As we were expected, we always have less sick people. The number of people having tuberculosis is so low that the ratio we analyzed earlier should not to be taken into account.   
+```     
 
-**SMS Reminder**
+As we were expected, we always have less sick people. The number of people having tuberculosis is so low that the ratio we analyzed earlier should not to be taken into account.   
+   
+**SMS Reminder**    
 ```{r}
 smsreminder_number <- ggplot(dataset, aes(x=sms_reminder)) +
   geom_bar() +
@@ -312,10 +324,11 @@ smsreminder_ratio <- ggplot(dataset, aes(x=sms_reminder, fill=show_up)) +
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 
 grid.arrange(smsreminder_number, smsreminder_ratio, ncol=2, top="Sms Reminder")
-```
-There is no strong pattern associated with the sending of a sms reminder. Without taking into account people that received 2 sms (too few people), we notice that the ration is really similar. However we don't know if those sms are sent randomnly or not.   
+```     
 
-**Scholarship Analysis**
+There is no strong pattern associated with the sending of a sms reminder. Without taking into account people that received 2 sms (too few people), we notice that the ration is really similar. However we don't know if those sms are sent randomnly or not.   
+   
+**Scholarship Analysis**   
 ```{r}
 smsreminder_number <- ggplot(dataset, aes(x=scholarship)) +
   geom_bar() +
@@ -329,7 +342,8 @@ smsreminder_ratio <- ggplot(dataset, aes(x=scholarship, fill=show_up)) +
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 
 grid.arrange(smsreminder_number, smsreminder_ratio, ncol=2, top="Scholarship")
-```
+```     
+  
 We did explain at the beginning of this file what scholarship meant, it's basically linked to the level of income of the family. We see that this feature have a strong impact.  
 
 **Time Analysis**
