@@ -456,20 +456,14 @@ It seems that we have a good model using a polynomial regression as follow:
 summary(lm(ratio~daydiff_regist_appt + daydiff_regist_appt_squared, by_diff[by_diff$daydiff_regist_appt<120,]))
 ```
 
+We see that the polynomial model fit pretty well this part of the curve with 2 p-values extremely satisfactory. 
+
 **Weather Analysis**
+
+In this part, we want to assess the impact of the weather on attendance of patients. We webscraped data about the weather in this specific city during the period of the analysis; and we look for any correlation between the level of precipitation, the temperature, the visibility, the wind speed and the noshow ratio previously described.
 
 ```{r}
 load("~/Desktop/Spr2017-Proj5-grp13-master/output/with_weather_dataset.RData")
-```
-
-```{r}
-by_precipitation_inches = group_by(dataset, appointment_date)
-by_precipitation_inches = summarise(by_precipitation_inches, show = sum(show_up==1), noshow = sum(show_up == 0), max_precipitation_inches = max(precipitation_inches), mean_precipitation_inches = mean(precipitation_inches))
-by_precipitation_inches$ratio = by_precipitation_inches$noshow / (by_precipitation_inches$show+by_precipitation_inches$noshow)
-
-qplot( max_precipitation_inches, ratio, data = by_precipitation_inches[by_precipitation_inches$max_precipitation_inches<2,]) + geom_smooth(show.legend = TRUE,method = 'lm')
-
-summary(lm(ratio~max_precipitation_inches, data = by_precipitation_inches[by_precipitation_inches$max_precipitation_inches<2,]))
 ```
 
 ```{r}
@@ -477,20 +471,28 @@ by_temp = group_by(dataset, appointment_date)
 by_temp = summarise(by_temp, show = sum(show_up==1), noshow = sum(show_up == 0), max_temp = max(max_temp_faren),lowest_visibility = max(as.numeric(lowest_visibility_miles)), lowest_visibility = max(as.numeric(lowest_visibility_miles)), wind = max(max_wind_mph), max_precipitation_inches = max(precipitation_inches))
 by_temp$ratio = by_temp$noshow / (by_temp$show + by_temp$noshow)
 
+qplot( max_precipitation_inches, ratio, data = by_temp[by_temp$max_precipitation_inches<2,]) + geom_smooth(show.legend = TRUE,method = 'lm')
+
+summary(lm(ratio~max_precipitation_inches, data = by_temp[by_temp$max_precipitation_inches<2,]))
+```
+
+We note that there is no correlation between the ratio and the precipitation level.
+
+```{r}
 qplot( max_temp, ratio, data = by_temp) + geom_smooth(show.legend = TRUE,method = 'lm')
 
 summary(lm(ratio ~ max_temp, data = by_temp))
 ```
 
+Same result with the maximum temperature.
+
 ```{r}
-by_visibility = group_by(dataset, appointment_date)
-by_visibility = summarise(by_visibility, show = sum(show_up==1), noshow = sum(show_up == 0), lowest_visibility = max(as.numeric(lowest_visibility_miles)))
-by_visibility$ratio = by_visibility$noshow / (by_visibility$show + by_visibility$noshow)
+qplot( lowest_visibility, ratio, data = by_temp) + geom_smooth(show.legend = TRUE,method = 'lm')
 
-qplot( lowest_visibility, ratio, data = by_visibility) + geom_smooth(show.legend = TRUE,method = 'lm')
-
-summary(lm(ratio ~ lowest_visibility, data = by_visibility))
+summary(lm(ratio ~ lowest_visibility, data = by_temp))
 ```
+
+Visibility IS correlated with the ratio. We observe that the ratio decrease when the lowest visibility of the day increase. We obtain a good p-value of 3% for this correlation.
 
 ```{r}
 qplot( wind, ratio, data = by_temp) + geom_smooth(show.legend = TRUE,method = 'lm')
@@ -498,7 +500,6 @@ qplot( wind, ratio, data = by_temp) + geom_smooth(show.legend = TRUE,method = 'l
 summary(lm(ratio ~ wind, data = by_temp))
 ```
 
-```{r}
-summary(lm(ratio ~ wind + lowest_visibility + max_temp + max_precipitation_inches, data = by_temp))
-```
+Just like the two first variables, the wind speed is not correlated with the nosow ratio. 
 
+We conclude from this analysis that among all weather variables we found, the only feature that is a little bit correlated with the ratio is the lowest visibility of the day. 
