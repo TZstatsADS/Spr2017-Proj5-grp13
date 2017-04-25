@@ -6,12 +6,13 @@ output:
   html_notebook: default
 ---
 
-## Project Description
-
-## Why did we choose this project?
-
-
-## Dataset Description
+### Project Description
+  
+  
+### Why did we choose this project?
+  
+  
+### Dataset Description
 Those data have been recorded in Brazil, in the state of Espirito Santo. Datapoints are only from the public sector, primary care.  
 
 *Description of the dataset*   
@@ -32,7 +33,7 @@ Those data have been recorded in Brazil, in the state of Espirito Santo. Datapoi
 *Source*    
 It's a kaggle dataset which have been taken here. https://www.kaggle.com/joniarroba/noshowappointments
 
-## Data Cleaning
+### Data Cleaning
 
 **Step 0: Load Packages**
 
@@ -47,6 +48,7 @@ library(gridExtra)
 
 **Step 1: Load Dataset**
 ```{r}
+# Medical Dataset
 dataset <- read.csv("../data/No-show-Issue-Comma-300k.csv")
 ```
 
@@ -95,11 +97,14 @@ dataset$daydiff_regist_appt <- -(dataset$daydiff_regist_appt)
 # Show-up / No-Show: 
 dataset$show_up <- revalue(dataset$show_up, c("No-Show"=0, "Show-Up"=1))
 
-# clean dates and time:
+# Clean date and time:
 ## Appt Registration Date
 dataset$appointment_registration <- as.POSIXct(as.character(dataset$appointment_registration), 
                                                "%Y-%m-%d T%H:%M:%SZ", 
                                                tz ="Brazil/East")
+
+# Set language to English 
+Sys.setlocale("LC_TIME", "C")
 
 dataset$weekday_registration <- as.factor(format(dataset$appointment_registration, "%a"))
 dataset$day_registration <- as.numeric(as.integer(format(dataset$appointment_registration, 
@@ -111,7 +116,7 @@ dataset$day_of_year_registration <- as.numeric(format(dataset$appointment_regist
 dataset$week_of_year_registration <- as.numeric(format(dataset$appointment_registration,"%U"))
 dataset$am_pm_registration <- as.factor(format(dataset$appointment_registration,"%p"))
 
-#Appt Actual Date
+## Appt Actual Date
 dataset$appointment_date <- as.POSIXct(as.character(dataset$appointment_date), 
                                        "%Y-%m-%d T%H:%M:%SZ", 
                                        tz = "Brazil/East")
@@ -123,7 +128,7 @@ dataset$day_of_year_appointment <- as.numeric(format(dataset$appointment_date,"%
 dataset$week_of_year_appointment <- as.numeric(format(dataset$appointment_date,"%U"))
 ```
 
-## Exploratory Data Analysis
+### Exploratory Data Analysis
 
 **Number of Datapoints**
 ```{r}
@@ -192,14 +197,14 @@ dataset %>%
     ggtitle("Number of Patients depending on the Age")
 ```     
 
-On the first graph, we display the number of patient depending on the age to know what the sample we have look like. After 60 years old, people begin to die, and hence there are less patients. We see on the representation of the expectited living time of people in Brazil.  
+On the first graph, we display the number of patient depending on the age to know what the sample we have look like. After 60 years old, people begin to die, and hence there are less patients. We see on the representation of the ife expectancy of people in Brazil whicih is comprised between 60 and 100 years old. (The life expectancy in Brazil is 73.8 years old).   
    
 ```{r}
 ggplot(dataset, aes(x=show_up, y=age, fill=show_up)) + 
   geom_boxplot() +
-  xlab("Age") +
-  ylab("Show-up") +
-  ggtitle("Number of Patients depending showing up depedning on the Age") +
+  xlab("Show-up") +
+  ylab("Age") +
+  ggtitle("Proportion of people showing up depending on the Age") +
   scale_fill_discrete("Show-up", labels=c("No", "Yes")) +
   scale_x_discrete(labels=c("No", "Yes"))
 ```    
@@ -218,7 +223,7 @@ ggplot(data = by_age, aes(x = age, y = ratio)) +
   geom_smooth(method = "glm")
 ```    
 
-Above, we can see the same trend. After 95 years old the figures are not significant because the sample is too small.  
+Above, we can see the same trend. After 95 years old the figures are not significant because the sample is too small. Hence only the first part of the graph can be interpreted.    
    
 **Age & Gender Analysis**   
 ```{r}
@@ -227,7 +232,7 @@ ggplot(data = dataset, aes(x = age, fill = show_up)) +
   facet_wrap(~gender) +
   xlab("Age") +
   ylab("Count") +
-  ggtitle("Number of Patients depending showing up depedning on the Age and Gender") +
+  ggtitle("Number of Patients showing up depending on Age and Gender") +
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 ```     
 
@@ -276,31 +281,31 @@ To validate this insights, we need to look at the samples size, which we are goi
 ```{r}
 diabetes <- ggplot(dataset, aes(x=diabetes, fill=show_up)) + 
   geom_bar() +
-  ylab("Ratio") +
+  ylab("Count") +
   scale_x_discrete(labels=c("No", "Yes")) +
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 alcoholism <- ggplot(dataset, aes(x=alcoholism, fill=show_up)) + 
   geom_bar() +
-  ylab("Ratio") +
+  ylab("Count") +
   scale_x_discrete(labels=c("No", "Yes")) +
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 hypertension <- ggplot(dataset, aes(x=hypertension, fill=show_up)) + 
   geom_bar() +
-  ylab("Ratio") +
+  ylab("Count") +
   scale_x_discrete(labels=c("No", "Yes")) +
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 handicap <- ggplot(dataset, aes(x=handicap, fill=show_up)) + 
   geom_bar() +
-  ylab("Ratio") +
+  ylab("Count") +
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 smoker <- ggplot(dataset, aes(x=smoker, fill=show_up)) + 
   geom_bar() +
-  ylab("Ratio") +
+  ylab("Count") +
   scale_x_discrete(labels=c("No", "Yes")) +
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 tuberculosis <- ggplot(dataset, aes(x=tuberculosis, fill=show_up)) + 
   geom_bar() +
-  ylab("Ratio") +
+  ylab("Count") +
   scale_x_discrete(labels=c("No", "Yes")) +
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 
@@ -348,7 +353,7 @@ We did explain at the beginning of this file what scholarship meant, it's basica
 
 **Time Analysis**
 
-Quick exploration of the data first
+Overview of the dataset per date.  
 ```{r}
 dataset$year_appointment <- as.numeric(format(dataset$appointment_date,"%Y"))
 
@@ -366,7 +371,7 @@ dataset %>%
 
 We observe a very small trend: people schedule slightly more medical appointment during the first half of the year. 
 
-Now, to explain a little bit how time influence our variable of interest, we show the evolution of the noshow ratio through the period we are studying.
+Now, to explain a little bit how time influences our variable of interest, we show the evolution of the noshow ratio through the period we are studying.
 
 ```{r}
 dataset %>% 
@@ -378,11 +383,11 @@ dataset %>%
     facet_grid(year_appointment ~ .) +
     xlab("Day of the Year") +
     ylim(0,1) +
-    ylab("Number of Appointments") +
-    ggtitle("Number of Appointments per Day")
+    ylab("Percentage of No-Show") +
+    ggtitle("Percentage of No-Show per Day")
 ```
 
-Using a daily granularity, we observe a high variance that make the graph difficult to interpret. Let's change for a weekly granularity.
+Using a daily granularity, we observe a high variance that makes the graph difficult to interpret. Let's change modify the graph by using a weekly granularity.  
 
 ```{r}
 dataset %>% 
@@ -394,8 +399,8 @@ dataset %>%
     facet_grid(year_appointment ~ .) +
     xlab("Day of the Year") + 
     ylim(0,1) +
-    ylab("Number of Appointments") +
-    ggtitle("Number of Appointments per Day")
+    ylab("Percentage of No-Show") +
+    ggtitle("Percentage of No-Show per Week")
 ```
 
 On a weekly basis we have more or less the same observations: we don't see any correlation between the date and the no-show ratio having a year window. 
@@ -403,7 +408,9 @@ On a weekly basis we have more or less the same observations: we don't see any c
 The natural next step is to look at the same ratio vs weekdays. It sounds pretty intuitive that there are some information to extract.
 ```{r}
 by_day_of_week = group_by(dataset, weekday_appointment)
-by_day = summarise(by_day_of_week, show = sum(show_up == 1), noshow = sum(show_up == 0))
+by_day = summarise(by_day_of_week, 
+                   show = sum(show_up == 1), 
+                   noshow = sum(show_up == 0))
 by_day$ratio = by_day$noshow / (by_day$show+ by_day$noshow)
 by_day$weekday_appointment = relevel(by_day$weekday_appointment, "Sun")
 by_day$weekday_appointment = relevel(by_day$weekday_appointment, "Sat")
@@ -413,41 +420,67 @@ by_day$weekday_appointment = relevel(by_day$weekday_appointment, "Wed")
 by_day$weekday_appointment = relevel(by_day$weekday_appointment, "Tue")
 by_day$weekday_appointment = relevel(by_day$weekday_appointment, "Mon")
 
-qplot(weekday_appointment, ratio, data = by_day, geom = c("boxplot"), xlab = "")
+qplot(weekday_appointment, ratio, data = by_day, 
+      geom = c("boxplot"), 
+      xlab = "Day of the Week",
+      ylab = "Percentage of No-Show",
+      main = "Percentage of No-Show depending on the Day")
+
 ```
 
-We clearly see a trend here: The ratio is extremely high on Saturday! It jumps from 30 to 37%.  
+We clearly see a trend here: the ratio is extremely high on Saturday! It jumps from 30 to 37%. Sunday is not significant because very few people have appointment on Sundays.    
 
-Let us have a look ot the moment in the day the patient make the appointment.
+Let us have a look ot the moment in the day the patient register for the appointment.
 ```{r}
-by_hour = group_by(dataset, hour_registration)
-by_hour = summarise(by_hour, show = sum(show_up==1), noshow = sum(show_up == 0))
-by_hour$ratio = by_hour$noshow / (by_hour$show+ by_hour$noshow)
+by_hour <- group_by(dataset, hour_registration)
+by_hour <- summarise(by_hour, 
+                     show=sum(show_up==1), 
+                     noshow=sum(show_up == 0))
+by_hour$ratio <- by_hour$noshow / (by_hour$show+ by_hour$noshow)
 
-g = ggplot(data = by_hour[by_hour$hour_registration>5,][by_hour$hour_registration<21,], aes(x = hour_registration, y = ratio)) + geom_line() + ylim(0,0.5) + xlab("Time") + ylab("Ratio")
-g
+ggplot(data=by_hour[by_hour$hour_registration>5,][by_hour$hour_registration<21,],
+       aes(x = hour_registration, y = ratio)) + 
+  geom_line() + 
+  ylim(0,0.5) + 
+  xlab("Hour (24h convention)") + 
+  ylab("Percentage of No-Show") +
+  ggtitle("Percentage of No-Show depending on the Time of the Day")
 ```
 We notice that people calling very early (<6am) in the morning are less likely to not show up compare to people calling late at night (>7pm). 
 
-Another important aspect in the time dimention is the time difference between the moment they make the appointment and the appointment date. 
+Another important aspect in the time dimention is the time difference between the moment they register for the appointment and the appointment date. 
 ```{r}
-by_diff = group_by(dataset, daydiff_regist_appt)
-by_diff = summarise(by_diff, show = sum(as.numeric(show_up)), noshow = sum(show_up == 0))
-by_diff$ratio = by_diff$noshow / by_diff$show
+by_diff <- group_by(dataset, daydiff_regist_appt)
+by_diff <- summarise(by_diff, 
+                     show=sum(as.numeric(show_up)), 
+                     noshow=sum(show_up == 0))
+by_diff$ratio <- by_diff$noshow / by_diff$show
 
-g = ggplot(data = by_diff, aes(x = daydiff_regist_appt, y = ratio)) + geom_line() + xlab("Day Difference") + ylab("Ratio")
-g
+ggplot(data = by_diff, aes(x = daydiff_regist_appt, y = ratio)) + 
+  geom_line() + 
+  xlab("Day Difference") + 
+  ylab("Percentage of No-Show") + 
+  ggtitle("Percentage of No-Show depending on the number of Waiting Days")
+
 ```
 
-We first notice that the curve is extremely heratic after a certain value due to the number of datapoint. Let us zoom in the 0-120 days window. 
+We first notice that the curve is extremely heratic after a certain value due to the number of datapoints. Let us zoom in the 0-120 days window. A waiting time of more than 120 days is really rare, so the second part od the curve isn't significant.  
 ```{r}
-by_diff = group_by(dataset, daydiff_regist_appt)
-by_diff = summarise(by_diff, show = sum(show_up==1), noshow = sum(show_up == 0))
-by_diff$ratio = by_diff$noshow / (by_diff$show+by_diff$noshow)
-by_diff$daydiff_regist_appt_squared = by_diff$daydiff_regist_appt**2
+by_diff <- group_by(dataset, daydiff_regist_appt)
+by_diff <- summarise(by_diff, 
+                     show = sum(show_up==1), 
+                     noshow = sum(show_up == 0))
+by_diff$ratio <- by_diff$noshow / (by_diff$show+by_diff$noshow)
+by_diff$daydiff_regist_appt_squared <- by_diff$daydiff_regist_appt**2
 
-g = ggplot(data = by_diff[by_diff$daydiff_regist_appt<120,], aes(x = daydiff_regist_appt, y = ratio)) + geom_line() + geom_smooth(method = 'loess')
-g
+ggplot(data = by_diff[by_diff$daydiff_regist_appt<120,], 
+       aes(x = daydiff_regist_appt, y = ratio)) + 
+  geom_line() + 
+  geom_smooth(method = 'loess') +
+  xlab("Day Difference") + 
+  ylab("Percentage of No-Show") + 
+  ggtitle("Percentage of No-Show depending on the number of Waiting Days")
+
 ```
 
 It seems that we have a good model using a polynomial regression as follow:
@@ -456,50 +489,84 @@ It seems that we have a good model using a polynomial regression as follow:
 summary(lm(ratio~daydiff_regist_appt + daydiff_regist_appt_squared, by_diff[by_diff$daydiff_regist_appt<120,]))
 ```
 
-We see that the polynomial model fit pretty well this part of the curve with 2 p-values extremely satisfactory. 
+We see that the polynomial model fit pretty well this part of the curve with 2 p-values extremely low, which is good.  
 
 **Weather Analysis**
 
-In this part, we want to assess the impact of the weather on attendance of patients. We webscraped data about the weather in this specific city during the period of the analysis; and we look for any correlation between the level of precipitation, the temperature, the visibility, the wind speed and the noshow ratio previously described.
+In this part, we want to assess the impact of the weather on attendance of patients. We webscraped data about the weather in this specific city during the period of the analysis; and we look for any correlation between the level of precipitation, the temperature, the visibility, the wind speed and the noshow ratio previously described.  
+The webscrabing code can be foudn in the lib folder (Weather scrapping.ipynb).  
 
 ```{r}
-load("~/Desktop/Spr2017-Proj5-grp13-master/output/with_weather_dataset.RData")
+# Load Weather data
+load("../output/with_weather_dataset.RData")
 ```
 
+*Precipitation level*
 ```{r}
-by_temp = group_by(dataset, appointment_date)
-by_temp = summarise(by_temp, show = sum(show_up==1), noshow = sum(show_up == 0), max_temp = max(max_temp_faren),lowest_visibility = max(as.numeric(lowest_visibility_miles)), lowest_visibility = max(as.numeric(lowest_visibility_miles)), wind = max(max_wind_mph), max_precipitation_inches = max(precipitation_inches))
-by_temp$ratio = by_temp$noshow / (by_temp$show + by_temp$noshow)
+by_temp <- group_by(dataset, appointment_date)
+by_temp <- summarise(by_temp, 
+                     show = sum(show_up==1), 
+                     noshow = sum(show_up == 0), 
+                     max_temp = max(max_temp_faren), 
+                     lowest_visibility = max(as.numeric(lowest_visibility_miles)), 
+                     lowest_visibility = max(as.numeric(lowest_visibility_miles)),
+                     wind = max(max_wind_mph), 
+                     max_precipitation_inches = max(precipitation_inches))
+by_temp$ratio <- by_temp$noshow / (by_temp$show + by_temp$noshow)
 
-qplot( max_precipitation_inches, ratio, data = by_temp[by_temp$max_precipitation_inches<2,]) + geom_smooth(show.legend = TRUE,method = 'lm')
+qplot( max_precipitation_inches, ratio, 
+       data = by_temp[by_temp$max_precipitation_inches<2,],
+       ylab = "Percentage of No-Show",
+       xlab = "Precipitation (in inches)") + 
+  geom_smooth(show.legend = TRUE,method = 'lm')
 
-summary(lm(ratio~max_precipitation_inches, data = by_temp[by_temp$max_precipitation_inches<2,]))
+summary(lm(ratio~max_precipitation_inches, 
+           data = by_temp[by_temp$max_precipitation_inches<2,]))
 ```
 
-We note that there is no correlation between the ratio and the precipitation level.
+Each point on the graph represent one day. We note that there is no correlation between the ratio and the precipitation level.  
 
+*Temperature*
 ```{r}
-qplot( max_temp, ratio, data = by_temp) + geom_smooth(show.legend = TRUE,method = 'lm')
+qplot(max_temp, 
+      ratio, 
+      data=by_temp,
+      ylab="Temperature",
+      xlab="Percentage of No-Show") + 
+  geom_smooth(show.legend=TRUE, 
+              method='lm')
 
 summary(lm(ratio ~ max_temp, data = by_temp))
 ```
 
-Same result with the maximum temperature.
+Same result with the temperature.
 
+*Visibility*
 ```{r}
-qplot( lowest_visibility, ratio, data = by_temp) + geom_smooth(show.legend = TRUE,method = 'lm')
+qplot(lowest_visibility, 
+      ratio, 
+      data=by_temp,
+      xlab="Lowest Visibility of the Day",
+      ylab="Percentage of No-Show") + 
+  geom_smooth(show.legend=TRUE, 
+              method='lm')
 
 summary(lm(ratio ~ lowest_visibility, data = by_temp))
 ```
 
 Visibility IS correlated with the ratio. We observe that the ratio decrease when the lowest visibility of the day increase. We obtain a good p-value of 3% for this correlation.
 
+*Wind*
 ```{r}
-qplot( wind, ratio, data = by_temp) + geom_smooth(show.legend = TRUE,method = 'lm')
+qplot(wind, 
+      ratio, 
+      data=by_temp) + 
+  geom_smooth(show.legend=TRUE, 
+              method='lm')
 
 summary(lm(ratio ~ wind, data = by_temp))
 ```
 
-Just like the two first variables, the wind speed is not correlated with the nosow ratio. 
+Just like the two first variables, the wind speed is not correlated with the No-Sow ratio. 
 
-We conclude from this analysis that among all weather variables we found, the only feature that is a little bit correlated with the ratio is the lowest visibility of the day. 
+We conclude from this analysis that among all weather variables we found, the only feature that is a little bit correlated with the ratio is the lowest visibility of the day.  
