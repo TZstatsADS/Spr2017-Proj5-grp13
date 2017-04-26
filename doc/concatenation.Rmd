@@ -1,0 +1,22 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Run the eda.Rmd first
+```{r}
+library(caret)
+```
+
+
+### Prediction Part
+
+Goal:  
+[Brief description to write]  
+
+**Seperation Train/Test set**
+```{r}
+intrain <- createDataPartition(y=dataset$show_up, p=0.7, list=FALSE)
+df.train <- dataset[intrain, ]
+df.test <- dataset[-intrain, ]
+```
