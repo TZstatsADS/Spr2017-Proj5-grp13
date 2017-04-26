@@ -191,18 +191,41 @@ df.test &lt;- dataset[-intrain, ]</code></pre>
 <div id="subset-selection" class="section level1">
 <h1>Subset Selection</h1>
 </div>
-<div id="modeles-lineaires---inutile" class="section level1">
-<h1>Modèles linéaires - inutile</h1>
+<div id="modeles-lineaires" class="section level1">
+<h1>Modèles linéaires</h1>
 </div>
 <div id="random-forest" class="section level1">
 <h1>Random Forest</h1>
 </div>
 <div id="tree" class="section level1">
 <h1>Tree</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShycGFydClcbmZpdCA8LSBycGFydChzaG93X3Vwfi4sIFxuICAgICAgICAgICAgIG1ldGhvZD1cImNsYXNzXCIsIFxuICAgICAgICAgICAgIGRhdGE9ZGF0YXNldClcblxucHJpbnRjcChmaXQpICMgZGlzcGxheSB0aGUgcmVzdWx0cyBcbnBsb3RjcChmaXQpICMgdmlzdWFsaXplIGNyb3NzLXZhbGlkYXRpb24gcmVzdWx0cyBcbnN1bW1hcnkoZml0KSAjIGRldGFpbGVkIHN1bW1hcnkgb2Ygc3BsaXRzXG5cbiMgcGxvdCB0cmVlIFxucGxvdChmaXQsIHVuaWZvcm09VFJVRSwgXG4gIFx0bWFpbj1cIkNsYXNzaWZpY2F0aW9uIFRyZWUgZm9yIEt5cGhvc2lzXCIpXG50ZXh0KGZpdCwgdXNlLm49VFJVRSwgYWxsPVRSVUUsIGNleD0uOClcblxuIyBjcmVhdGUgYXR0cmFjdGl2ZSBwb3N0c2NyaXB0IHBsb3Qgb2YgdHJlZSBcbnBvc3QoZml0LCBmaWxlID0gXCJjOi90cmVlLnBzXCIsIFxuICBcdHRpdGxlID0gXCJDbGFzc2lmaWNhdGlvbiBUcmVlIGZvciBLeXBob3Npc1wiKVxuYGBgIn0= -->
+<pre class="r"><code>library(rpart)
+fit &lt;- rpart(show_up~., 
+             method=&quot;class&quot;, 
+             data=dataset)
+
+printcp(fit) # display the results 
+plotcp(fit) # visualize cross-validation results 
+summary(fit) # detailed summary of splits
+
+# plot tree 
+plot(fit, uniform=TRUE, 
+    main=&quot;Classification Tree for Kyphosis&quot;)
+text(fit, use.n=TRUE, all=TRUE, cex=.8)
+
+# create attractive postscript plot of tree 
+post(fit, file = &quot;c:/tree.ps&quot;, 
+    title = &quot;Classification Tree for Kyphosis&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 </div>
 <div id="imbalanced-classes" class="section level1">
 <h1>Imbalanced classes</h1>
-<p>Our dataset is imbalanced and we need to keep that in mind when thryng to predict the number of no-shows.</p>
+<p>Our dataset is imbalanced and we need to keep that in mind when trying to predict the number of no-shows.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtKGRhdGFzZXQkc2hvd191cD09MSkvbnJvdyhkYXRhc2V0KSoxMDBcblxuYGBgIn0= -->
@@ -214,17 +237,39 @@ df.test &lt;- dataset[-intrain, ]</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>69.70% of the patients do show up. As a result, a model which has an accuracy rate lower than this rate doesn’t imporve anything. Prediciting a show for each patient would have a better accuracy rate.</p>
+<p>69.70% of the patients do show up. As a result, a model which has an accuracy rate lower than this rate doesn’t improve anything. Prediciting a show for each patient would have a better accuracy rate.</p>
 <p>How to work with an imbalanced dataset? Here the ratio is 70:30<br />
 First, we can hilight the fact that the imbalanceness of our dataset is totally normal and was expected.</p>
-<p>Accurcay - Accuracy Paradix FAlse Positive - False NEgative</p>
+<p>Accurcay - Accuracy Paradix False Positive - False Negative</p>
 </div>
 <div id="clustering" class="section level1">
 <h1>Clustering</h1>
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ293ZXJfZGlzdCA8LSBkYWlzeShkYXRhc2V0LFxuICAgICAgICAgICAgICAgICAgICBtZXRyaWMgPSBcImdvd2VyXCIsXG4gICAgICAgICAgICAgICAgICAgIHR5cGUgPSBsaXN0KGxvZ3JhdGlvID0gMykpXG5cbmBgYCJ9 -->
+<pre class="r"><code>gower_dist &lt;- daisy(dataset,
+                    metric = &quot;gower&quot;,
+                    type = list(logratio = 3))
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gZGFpc3koZGF0YXNldCwgbWV0cmljID0gXCJnb3dlclwiLCB0eXBlID0gbGlzdChsb2dyYXRpbyA9IDMpKSA6IFxuICB0eXBlIGluYWTDqXF1YXQgUE9TSVhjdCBwb3VyIGxlcyBudW3DqXJvcyBkZSBjb2xvbm5lcyAxLCA4dHlwZSBpbmFkw6lxdWF0IFBPU0lYY3QgcG91ciBsZXMgbnVtw6lyb3MgZGUgY29sb25uZXMgMSwgOFxuIn0= -->
+<pre><code>Error in daisy(dataset, metric = &quot;gower&quot;, type = list(logratio = 3)) : 
+  type inadéquat POSIXct pour les numéros de colonnes 1, 8type inadéquat POSIXct pour les numéros de colonnes 1, 8</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZml0IDwta21vZGVzKGRhdGFzZXRbXSwgMywgaXRlci5tYXggPSAxMCwgd2VpZ2h0ZWQgPSBGQUxTRSApIFxuXG5gYGAifQ== -->
+<pre class="r"><code>fit &lt;-kmodes(dataset[], 3, iter.max = 10, weighted = FALSE ) 
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKCiMjIyBQcmVkaWN0aW9uIAoKCiMgU3BlcmF0aW9uIFRyYWluL1Rlc3Qgc2V0IAoKYGBge3J9CmxpYnJhcnkoY2FyZXQpCmludHJhaW4gPC0gY3JlYXRlRGF0YVBhcnRpdGlvbih5PWRhdGFzZXQkc2hvd191cCwgcD0wLjcsIGxpc3Q9RkFMU0UpCmRmLnRyYWluIDwtIGRhdGFzZXRbaW50cmFpbiwgXQpkZi50ZXN0IDwtIGRhdGFzZXRbLWludHJhaW4sIF0KYGBgCgojIFN1YnNldCBTZWxlY3Rpb24KCiMgTW9kw6hsZXMgbGluw6lhaXJlcyAtIGludXRpbGUKCiMgUmFuZG9tIEZvcmVzdAoKIyBUcmVlIAoKIyBJbWJhbGFuY2VkIGNsYXNzZXMKT3VyIGRhdGFzZXQgaXMgaW1iYWxhbmNlZCBhbmQgd2UgbmVlZCB0byBrZWVwIHRoYXQgaW4gbWluZCB3aGVuIHRocnluZyB0byBwcmVkaWN0IHRoZSBudW1iZXIgb2Ygbm8tc2hvd3MuIAoKYGBge3J9CnN1bShkYXRhc2V0JHNob3dfdXA9PTEpL25yb3coZGF0YXNldCkqMTAwCmBgYAoKNjkuNzAlIG9mIHRoZSBwYXRpZW50cyBkbyBzaG93IHVwLiBBcyBhIHJlc3VsdCwgYSBtb2RlbCB3aGljaCBoYXMgYW4gYWNjdXJhY3kgcmF0ZSBsb3dlciB0aGFuIHRoaXMgcmF0ZSBkb2Vzbid0IGltcG9ydmUgYW55dGhpbmcuIFByZWRpY2l0aW5nIGEgc2hvdyBmb3IgZWFjaCBwYXRpZW50IHdvdWxkIGhhdmUgYSBiZXR0ZXIgYWNjdXJhY3kgcmF0ZS4gIAoKSG93IHRvIHdvcmsgd2l0aCBhbiBpbWJhbGFuY2VkIGRhdGFzZXQ/IEhlcmUgdGhlIHJhdGlvIGlzIDcwOjMwICAgCkZpcnN0LCB3ZSBjYW4gaGlsaWdodCB0aGUgZmFjdCB0aGF0IHRoZSBpbWJhbGFuY2VuZXNzIG9mIG91ciBkYXRhc2V0IGlzIHRvdGFsbHkgbm9ybWFsIGFuZCB3YXMgZXhwZWN0ZWQuICAKCkFjY3VyY2F5IC0gQWNjdXJhY3kgUGFyYWRpeApGQWxzZSBQb3NpdGl2ZSAtIEZhbHNlIE5FZ2F0aXZlCgoKCiMgQ2x1c3RlcmluZw==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKCiMjIyBQcmVkaWN0aW9uIAoKCiMgU3BlcmF0aW9uIFRyYWluL1Rlc3Qgc2V0IAoKYGBge3J9CmxpYnJhcnkoY2FyZXQpCmludHJhaW4gPC0gY3JlYXRlRGF0YVBhcnRpdGlvbih5PWRhdGFzZXQkc2hvd191cCwgcD0wLjcsIGxpc3Q9RkFMU0UpCmRmLnRyYWluIDwtIGRhdGFzZXRbaW50cmFpbiwgXQpkZi50ZXN0IDwtIGRhdGFzZXRbLWludHJhaW4sIF0KYGBgCgojIFN1YnNldCBTZWxlY3Rpb24KCiMgTW9kw6hsZXMgbGluw6lhaXJlcwoKIyBSYW5kb20gRm9yZXN0CgojIFRyZWUgCgpgYGB7cn0KbGlicmFyeShycGFydCkKZml0IDwtIHJwYXJ0KHNob3dfdXB+LiwgCiAgICAgICAgICAgICBtZXRob2Q9ImNsYXNzIiwgCiAgICAgICAgICAgICBkYXRhPWRhdGFzZXQpCgpwcmludGNwKGZpdCkgIyBkaXNwbGF5IHRoZSByZXN1bHRzIApwbG90Y3AoZml0KSAjIHZpc3VhbGl6ZSBjcm9zcy12YWxpZGF0aW9uIHJlc3VsdHMgCnN1bW1hcnkoZml0KSAjIGRldGFpbGVkIHN1bW1hcnkgb2Ygc3BsaXRzCgojIHBsb3QgdHJlZSAKcGxvdChmaXQsIHVuaWZvcm09VFJVRSwgCiAgCW1haW49IkNsYXNzaWZpY2F0aW9uIFRyZWUgZm9yIEt5cGhvc2lzIikKdGV4dChmaXQsIHVzZS5uPVRSVUUsIGFsbD1UUlVFLCBjZXg9LjgpCgojIGNyZWF0ZSBhdHRyYWN0aXZlIHBvc3RzY3JpcHQgcGxvdCBvZiB0cmVlIApwb3N0KGZpdCwgZmlsZSA9ICJjOi90cmVlLnBzIiwgCiAgCXRpdGxlID0gIkNsYXNzaWZpY2F0aW9uIFRyZWUgZm9yIEt5cGhvc2lzIikKYGBgCgojIEltYmFsYW5jZWQgY2xhc3NlcwpPdXIgZGF0YXNldCBpcyBpbWJhbGFuY2VkIGFuZCB3ZSBuZWVkIHRvIGtlZXAgdGhhdCBpbiBtaW5kIHdoZW4gdHJ5aW5nIHRvIHByZWRpY3QgdGhlIG51bWJlciBvZiBuby1zaG93cy4gCgpgYGB7cn0Kc3VtKGRhdGFzZXQkc2hvd191cD09MSkvbnJvdyhkYXRhc2V0KSoxMDAKYGBgCgo2OS43MCUgb2YgdGhlIHBhdGllbnRzIGRvIHNob3cgdXAuIEFzIGEgcmVzdWx0LCBhIG1vZGVsIHdoaWNoIGhhcyBhbiBhY2N1cmFjeSByYXRlIGxvd2VyIHRoYW4gdGhpcyByYXRlIGRvZXNuJ3QgaW1wcm92ZSBhbnl0aGluZy4gUHJlZGljaXRpbmcgYSBzaG93IGZvciBlYWNoIHBhdGllbnQgd291bGQgaGF2ZSBhIGJldHRlciBhY2N1cmFjeSByYXRlLiAgCgpIb3cgdG8gd29yayB3aXRoIGFuIGltYmFsYW5jZWQgZGF0YXNldD8gSGVyZSB0aGUgcmF0aW8gaXMgNzA6MzAgICAKRmlyc3QsIHdlIGNhbiBoaWxpZ2h0IHRoZSBmYWN0IHRoYXQgdGhlIGltYmFsYW5jZW5lc3Mgb2Ygb3VyIGRhdGFzZXQgaXMgdG90YWxseSBub3JtYWwgYW5kIHdhcyBleHBlY3RlZC4gIAoKQWNjdXJjYXkgLSBBY2N1cmFjeSBQYXJhZGl4CkZhbHNlIFBvc2l0aXZlIC0gRmFsc2UgTmVnYXRpdmUKCiMgQ2x1c3RlcmluZwoKYGBge3J9CmxpYnJhcnkoY2x1c3RlcikKZGYgPC0gZGF0YXNldFsgLCAhbmFtZXMoZGF0YXNldCkgJWluJSBjKCJhcHBvaW50bWVudF9kYXRlIiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJhcHBvaW50bWVudF9yZWdpc3RyYXRpb24iKV0KZ293ZXJfZGlzdCA8LSBkYWlzeShkZiwKICAgICAgICAgICAgICAgICAgICBtZXRyaWMgPSAiZ293ZXIiLAogICAgICAgICAgICAgICAgICAgIHR5cGUgPSBsaXN0KGxvZ3JhdGlvID0gMykpCnN1bW1hcnkoZ293ZXJfZGlzdCkKZ293ZXJfbWF0IDwtIGFzLm1hdHJpeChnb3dlcl9kaXN0KQoKc2lsX3dpZHRoIDwtIGMoTkEpCgpmb3IoaSBpbiAyOjEwKXsKICAKICBwYW1fZml0IDwtIHBhbShnb3dlcl9kaXN0LAogICAgICAgICAgICAgICAgIGRpc3MgPSBUUlVFLAogICAgICAgICAgICAgICAgIGsgPSBpKQogIAogIHNpbF93aWR0aFtpXSA8LSBwYW1fZml0JHNpbGluZm8kYXZnLndpZHRoCiAgCn0KCiMgUGxvdCBzaWhvdWV0dGUgd2lkdGggKGhpZ2hlciBpcyBiZXR0ZXIpCgpwbG90KDE6MTAsIHNpbF93aWR0aCwKICAgICB4bGFiID0gIk51bWJlciBvZiBjbHVzdGVycyIsCiAgICAgeWxhYiA9ICJTaWxob3VldHRlIFdpZHRoIikKbGluZXMoMToxMCwgc2lsX3dpZHRoKQoKcGFtX2ZpdCA8LSBwYW0oZ293ZXJfZGlzdCwgZGlzcyA9IFRSVUUsIGsgPSAzKQoKcGFtX3Jlc3VsdHMgPC0gZGF0YXNldCAlPiUKICBtdXRhdGUoY2x1c3RlciA9IHBhbV9maXQkY2x1c3RlcmluZykgJT4lCiAgZ3JvdXBfYnkoY2x1c3RlcikgJT4lCiAgZG8odGhlX3N1bW1hcnkgPSBzdW1tYXJ5KC4pKQoKcGFtX3Jlc3VsdHMkdGhlX3N1bW1hcnkKCmBgYAoKYGBge3J9CmxpYnJhcnkoa2xhUikKCmZpdCA8LWttb2RlcyhkYXRhc2V0W10sIDMsIGl0ZXIubWF4ID0gMTAsIHdlaWdodGVkID0gRkFMU0UgKSAKYGBgCgo=</div>
 
 
 

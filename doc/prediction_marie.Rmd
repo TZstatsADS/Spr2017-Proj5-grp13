@@ -18,27 +18,92 @@ df.test <- dataset[-intrain, ]
 
 # Subset Selection
 
-# Modèles linéaires - inutile
+# Modèles linéaires
 
 # Random Forest
 
 # Tree 
 
+```{r}
+library(rpart)
+fit <- rpart(show_up~., 
+             method="class", 
+             data=dataset)
+
+printcp(fit) # display the results 
+plotcp(fit) # visualize cross-validation results 
+summary(fit) # detailed summary of splits
+
+# plot tree 
+plot(fit, uniform=TRUE, 
+  	main="Classification Tree for Kyphosis")
+text(fit, use.n=TRUE, all=TRUE, cex=.8)
+
+# create attractive postscript plot of tree 
+post(fit, file = "c:/tree.ps", 
+  	title = "Classification Tree for Kyphosis")
+```
+
 # Imbalanced classes
-Our dataset is imbalanced and we need to keep that in mind when thryng to predict the number of no-shows. 
+Our dataset is imbalanced and we need to keep that in mind when trying to predict the number of no-shows. 
 
 ```{r}
 sum(dataset$show_up==1)/nrow(dataset)*100
 ```
 
-69.70% of the patients do show up. As a result, a model which has an accuracy rate lower than this rate doesn't imporve anything. Prediciting a show for each patient would have a better accuracy rate.  
+69.70% of the patients do show up. As a result, a model which has an accuracy rate lower than this rate doesn't improve anything. Prediciting a show for each patient would have a better accuracy rate.  
 
 How to work with an imbalanced dataset? Here the ratio is 70:30   
 First, we can hilight the fact that the imbalanceness of our dataset is totally normal and was expected.  
 
 Accurcay - Accuracy Paradix
-FAlse Positive - False NEgative
-
-
+False Positive - False Negative
 
 # Clustering
+
+```{r}
+library(cluster)
+df <- dataset[ , !names(dataset) %in% c("appointment_date",
+                                        "appointment_registration")]
+gower_dist <- daisy(df,
+                    metric = "gower",
+                    type = list(logratio = 3))
+summary(gower_dist)
+gower_mat <- as.matrix(gower_dist)
+
+sil_width <- c(NA)
+
+for(i in 2:10){
+  
+  pam_fit <- pam(gower_dist,
+                 diss = TRUE,
+                 k = i)
+  
+  sil_width[i] <- pam_fit$silinfo$avg.width
+  
+}
+
+# Plot sihouette width (higher is better)
+
+plot(1:10, sil_width,
+     xlab = "Number of clusters",
+     ylab = "Silhouette Width")
+lines(1:10, sil_width)
+
+pam_fit <- pam(gower_dist, diss = TRUE, k = 3)
+
+pam_results <- dataset %>%
+  mutate(cluster = pam_fit$clustering) %>%
+  group_by(cluster) %>%
+  do(the_summary = summary(.))
+
+pam_results$the_summary
+
+```
+
+```{r}
+library(klaR)
+
+fit <-kmodes(dataset[], 3, iter.max = 10, weighted = FALSE ) 
+```
+
