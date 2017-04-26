@@ -193,9 +193,28 @@ df.train &lt;- dataset[intrain, ]
 df.test &lt;- dataset[-intrain, ]</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p><strong>Imbalanced Classes</strong></p>
+<p>Our dataset is imbalanced and we need to keep that in mind when trying to predict the number of no-shows. This imbalanceness is totally normal and was ecpected (most patient do show-up and that’s perfectly normal). However, having an imbalanced dataset will make the model comparison task more difficult.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtKGRhdGFzZXQkc2hvd191cD09MSkvbnJvdyhkYXRhc2V0KSoxMDBcbmBgYCJ9 -->
+<pre class="r"><code>sum(dataset$show_up==1)/nrow(dataset)*100</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>69.70% of the patients do show up. As a result, predicting that all patient will show-up will guve an accuracy of 69.70%. Obviously this model is not satisfactory.</p>
+<p>Hence accuracy may not be the best metric to focus on when comparing a model. (See Accuracy Paradox (<a href="https://en.wikipedia.org/wiki/Accuracy_paradox" class="uri">https://en.wikipedia.org/wiki/Accuracy_paradox</a>)).</p>
+<p>Few metrics or methods we can use are the following:<br />
+- Recall<br />
+- Precision<br />
+- ROC Curve</p>
+<p><strong>Feature Selection</strong></p>
+<p>In this section,</p>
+<!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKUnVuIHRoZSBlZGEuUm1kIGZpcnN0CmBgYHtyfQpsaWJyYXJ5KGNhcmV0KQpgYGAKCgojIyMgUHJlZGljdGlvbiBQYXJ0CgpHb2FsOiAgCltCcmllZiBkZXNjcmlwdGlvbiB0byB3cml0ZV0gIAoKKipTZXBlcmF0aW9uIFRyYWluL1Rlc3Qgc2V0KioKYGBge3J9CmludHJhaW4gPC0gY3JlYXRlRGF0YVBhcnRpdGlvbih5PWRhdGFzZXQkc2hvd191cCwgcD0wLjcsIGxpc3Q9RkFMU0UpCmRmLnRyYWluIDwtIGRhdGFzZXRbaW50cmFpbiwgXQpkZi50ZXN0IDwtIGRhdGFzZXRbLWludHJhaW4sIF0KYGBgCg==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKUnVuIHRoZSBlZGEuUm1kIGZpcnN0CmBgYHtyfQpsaWJyYXJ5KGNhcmV0KQpgYGAKCgojIyMgUHJlZGljdGlvbiBQYXJ0CgpHb2FsOiAgCltCcmllZiBkZXNjcmlwdGlvbiB0byB3cml0ZV0gIAoKKipTZXBlcmF0aW9uIFRyYWluL1Rlc3Qgc2V0KioKYGBge3J9CmludHJhaW4gPC0gY3JlYXRlRGF0YVBhcnRpdGlvbih5PWRhdGFzZXQkc2hvd191cCwgcD0wLjcsIGxpc3Q9RkFMU0UpCmRmLnRyYWluIDwtIGRhdGFzZXRbaW50cmFpbiwgXQpkZi50ZXN0IDwtIGRhdGFzZXRbLWludHJhaW4sIF0KYGBgCgoqKkltYmFsYW5jZWQgQ2xhc3NlcyoqCgpPdXIgZGF0YXNldCBpcyBpbWJhbGFuY2VkIGFuZCB3ZSBuZWVkIHRvIGtlZXAgdGhhdCBpbiBtaW5kIHdoZW4gdHJ5aW5nIHRvIHByZWRpY3QgdGhlIG51bWJlciBvZiBuby1zaG93cy4gVGhpcyBpbWJhbGFuY2VuZXNzIGlzIHRvdGFsbHkgbm9ybWFsIGFuZCB3YXMgZWNwZWN0ZWQgKG1vc3QgcGF0aWVudCBkbyBzaG93LXVwIGFuZCB0aGF0J3MgcGVyZmVjdGx5IG5vcm1hbCkuIEhvd2V2ZXIsIGhhdmluZyBhbiBpbWJhbGFuY2VkIGRhdGFzZXQgd2lsbCBtYWtlIHRoZSBtb2RlbCBjb21wYXJpc29uIHRhc2sgbW9yZSBkaWZmaWN1bHQuICAKCmBgYHtyfQpzdW0oZGF0YXNldCRzaG93X3VwPT0xKS9ucm93KGRhdGFzZXQpKjEwMApgYGAKCjY5LjcwJSBvZiB0aGUgcGF0aWVudHMgZG8gc2hvdyB1cC4gQXMgYSByZXN1bHQsIHByZWRpY3RpbmcgdGhhdCBhbGwgcGF0aWVudCB3aWxsIHNob3ctdXAgd2lsbCBndXZlIGFuIGFjY3VyYWN5IG9mIDY5LjcwJS4gT2J2aW91c2x5IHRoaXMgbW9kZWwgaXMgbm90IHNhdGlzZmFjdG9yeS4gICAgCgpIZW5jZSBhY2N1cmFjeSBtYXkgbm90IGJlIHRoZSBiZXN0IG1ldHJpYyB0byBmb2N1cyBvbiB3aGVuIGNvbXBhcmluZyBhIG1vZGVsLiAoU2VlIEFjY3VyYWN5IFBhcmFkb3ggKGh0dHBzOi8vZW4ud2lraXBlZGlhLm9yZy93aWtpL0FjY3VyYWN5X3BhcmFkb3gpKS4gIAoKRmV3IG1ldHJpY3Mgb3IgbWV0aG9kcyB3ZSBjYW4gdXNlIGFyZSB0aGUgZm9sbG93aW5nOiAgCi0gUmVjYWxsICAKLSBQcmVjaXNpb24gIAotIFJPQyBDdXJ2ZSAgCgoqKkZlYXR1cmUgU2VsZWN0aW9uKioKCkluIHRoaXMgc2VjdGlvbiwg</div>
 
 
 

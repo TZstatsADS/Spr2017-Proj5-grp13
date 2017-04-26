@@ -20,3 +20,24 @@ intrain <- createDataPartition(y=dataset$show_up, p=0.7, list=FALSE)
 df.train <- dataset[intrain, ]
 df.test <- dataset[-intrain, ]
 ```
+
+**Imbalanced Classes**
+
+Our dataset is imbalanced and we need to keep that in mind when trying to predict the number of no-shows. This imbalanceness is totally normal and was ecpected (most patient do show-up and that's perfectly normal). However, having an imbalanced dataset will make the model comparison task more difficult.  
+
+```{r}
+sum(dataset$show_up==1)/nrow(dataset)*100
+```
+
+69.70% of the patients do show up. As a result, predicting that all patient will show-up will guve an accuracy of 69.70%. Obviously this model is not satisfactory.    
+
+Hence accuracy may not be the best metric to focus on when comparing a model. (See Accuracy Paradox (https://en.wikipedia.org/wiki/Accuracy_paradox)).  
+
+Few metrics or methods we can use are the following:  
+- Recall  
+- Precision  
+- ROC Curve  
+
+**Feature Selection**
+
+In this section, 
