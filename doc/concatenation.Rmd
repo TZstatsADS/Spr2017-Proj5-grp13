@@ -6,6 +6,9 @@ output: html_notebook
 Run the eda.Rmd first
 ```{r}
 library(caret)
+library(glmnet)
+library(leaps)
+library(randomForest)
 ```
 
 
@@ -40,4 +43,32 @@ Few metrics or methods we can use are the following:
 
 **Feature Selection**
 
-In this section, 
+In this section, we will try to discover which features are the most important. Hence, we will be able to verify if we get the same conclusions as in the exploratory data analysis.  
+
+```{r}
+# Select Columns
+df.train.sub = df.train[,-c(1,8,19,20,21,23,24,25,26,31)]
+
+# Create Column 
+# This feture is created because of the graph: "Percentage of No-Shows depending on the waiting days" in the Exploratory Data Analysis
+df.train.sub$daydiff_regist_appt_squared = df.train.sub$daydiff_regist_appt**2
+
+fit = regsubsets(show_up~., 
+                 data = df.train.sub,
+                 method = "exhaustive", 
+                 nvmax = 20)
+plot(fit)
+```
+
+Important variables (by decreasing order):   
+- age  
+- daydiff_regist_appt  
+- daydiff_regist_appt_squared  
+- hour_registration  
+- smoker1  
+- scholarship1  
+- alcoholism1  
+- sms_reminder1  
+- appointment_Mon  
+- appointment_Sat  
+Those was the one having the more impact in the Exploratory Data Analysis. Those results aren't a surprise.  
