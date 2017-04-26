@@ -72,3 +72,47 @@ Important variables (by decreasing order):
 - appointment_Mon  
 - appointment_Sat  
 Those was the one having the more impact in the Exploratory Data Analysis. Those results aren't a surprise.  
+
+```{r}
+plot(summary(fit)$adjr2)
+```
+
+```{r}
+plot(summary(fit)$cp)
+```
+
+```{r}
+plot(summary(fit)$bic)
+```
+
+We infer from those graphs that there is no optimum number of variables below 15 using regressions; in addition, the 9 first variables listed above seem to extract most of what can be extracted using linear regression. It is not a surprising result considering our previous analysis and the fact that most of our features are factor variables.   
+  
+However, this analysis straighten some of our previous points: age, daydiff_regist_appt and hour_registration are important features that explain a lot the show/noshow ratio.   
+  
+Let us now focus on the predictive model. Apparently, after this preliminary analysis, linear correlation don't explain enough to use it as a predictive model. Thus, let us focus on tree-based algorithm.  
+  
+**Tree-base method**
+
+```{r}
+fit.tree = randomForest(show_up~., 
+                        data = df.train.sub, 
+                        importance=TRUE, 
+                        mtry = 2, 
+                        ntree=100)
+fit.tree
+```
+
+```{r}
+importance(fit.tree)[,4]
+```
+
+The more important variables are the same as the on highlighted above:  
+- Age  
+- Hour of registration  
+- The number of days between the registration adn the appointment  
+  
+Let's look at this model on the test set: 
+```{r}
+
+```
+
