@@ -48,6 +48,7 @@ In this section, we will try to discover which features are the most important. 
 ```{r}
 # Select Columns
 df.train.sub = df.train[,-c(1,8,19,20,21,23,24,25,26,31)]
+df.test.sub = df.test[,-c(1,8,19,20,21,23,24,25,26,31)]
 
 # Create Column 
 # This feture is created because of the graph: "Percentage of No-Shows depending on the waiting days" in the Exploratory Data Analysis
@@ -113,6 +114,32 @@ The more important variables are the same as the on highlighted above:
   
 Let's look at this model on the test set: 
 ```{r}
+rf.pred <- predict(fit.tree, 
+                   df.train.sub, 
+                   type="class")
+table(rf.pred, df.train$show_up)
+1-mean(rf.pred==df.train$show_up)
+```
+The test error rate is 27%.  Looking at the confusion matrix, we spot most of the No-Show but we also classify 53,956 appoitnment as potential No-Show while it is not the case.  
+At this point we need to wonder what is the more important between detecting all no-shows & detecting only real no-shows (but not being able of detecting them all).
 
+```{r}
+rf.fit <- randomForest(show_up~., 
+                        data = df.train.sub, 
+                        importance=TRUE, 
+                        mtry = 2, 
+                        ntree=1000)
+```
+
+```{r}
+rf.pred <- predict(rf.fit, 
+                   df.train.sub, 
+                   type="class")
+table(rf.pred, df.train$show_up)
+1-mean(rf.pred==df.train$show_up)
+```
+
+```{r}
+err <- rf.fit$err.rate
 ```
 
