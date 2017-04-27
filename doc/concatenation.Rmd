@@ -138,12 +138,12 @@ rf.fit <- randomForest(show_up~.,
                         data = df.train.sub, 
                         importance=TRUE, 
                         mtry = 3, 
-                        ntree=100)
+                        ntree = 100) ## tried doing it with 1000 but computer crashed
 ```
 
 ```{r}
 err <- rf.fit$err.rate[,]
-nb_trees <- seq(1:500)
+nb_trees <- seq(1:1000)
 err <- as.data.frame(cbind(err, nb_trees))
 
 ggplot(err, aes(x=nb_trees, y=OOB)) +
@@ -164,9 +164,7 @@ boost.fit <- gbm(show_up~.,
                  n.trees=100,
                  interaction.depth=4,
                  shrinkage=0.01)
-```
 
-```{r}
 boost.fit
 summary(boost.fit)
 ```
@@ -176,22 +174,21 @@ Now we try to optimize the threshold to select for high specificity/true negativ
 
 
 ```{r}
+
+######################### 
+
+## ADAboost
+
 ## Given that Adaboost uses exponential penalty function, we log the predicted values to get probability
 boost.pred = predict(boost.fit, n.trees = 100 ,newdata = df.test.sub)
-# df.test$boost.pred <- log(boost.pred)
 
-ThresholdsList = seq(from = min(log(boost.pred)) , to = max(log(boost.pred)), by = 0.001)
-
-rf.specificityList <- c()
+boost.ThresholdsList = seq(from = min(log(boost.pred)) , to = max(log(boost.pred)), by = 0.001)
 boost.specificityList <- c()
 
-for (i in 1:length(ThresholdsList)) {
-  threshold <- ThresholdsList[i]
+for (i in 1:length(boost.ThresholdsList)) {
+  threshold <- boost.ThresholdsList[i]
   
   pred.boost <- factor(ifelse(log(boost.pred) > threshold, 1, 0))
-  boost.mat <- confusionMatrix(pred.boost, df.test$show_up)
-  
-  rf.boost <- factor(ifelse(log(boost.pred) > threshold, 1, 0))
   boost.mat <- confusionMatrix(pred.boost, df.test$show_up)
   
   
@@ -200,23 +197,48 @@ for (i in 1:length(ThresholdsList)) {
   spec <- true_neg / (true_neg + false_pos)
   
   boost.specificityList[i] <- spec
-  
-  # pred.rf     <- ifelse(log(boost.pred) > threshold, 1, 0)
-  # rf.mat <- confusionMatrix(pred.rf, df.test$show_up)
-  # rf.specificityList[i] <- specificity(rf.mat)
 }
 
-ThresholdsDF <- data.frame("ThresholdsList" = ThresholdsList,
-                           # "RF.specificity" = rf.specificityList,
-                           "Boost.specificity" = boost.specificityList)
 
-# Opt.RF.threshold <- ThresholdsDF[which.max(ThresholdsDF$RF.specificity), "ThresholdsList")
-Opt.Boost.threshold <- ThresholdsDF[which.max(ThresholdsDF$Boost.specificity), "ThresholdsList")
+Boost.thresholdsDF <- data.frame("ThresholdsList" = boost.ThresholdsList,
+                                 "Boost.specificity" = boost.specificityList)
+
+
+######################### 
+
+## Random Forest
+
+rf.pred <- predict(rf.fit, newdata = df.test.sub, type="class")
+
+rf.ThresholdsList = seq(from = min(log(rf.pred)) , to = max(log(rf.pred)), by = 0.001)
+rf.specificityList <- c()
+
+for (i in 1:length(rf.ThresholdsList)) {
+  threshold <- rf.ThresholdsList[i]
+  
+  pred.rf <- factor(ifelse(log(rf.pred) > threshold, 1, 0))
+  rf.mat <- confusionMatrix(pred.rf, df.test$show_up)
+  
+  
+  true_neg <- rf.mat$table[1]
+  false_pos <- rf.mat$table[3]
+  spec <- true_neg / (true_neg + false_pos)
+  
+  rf.specificityList[i] <- spec
+}
+
+rf.thresholdsDF <- data.frame("ThresholdsList" = ThresholdsList,
+                              "RF.specificity" = rf.specificityList)
+
           
+
+### now use threshold to test prediction on entire year, or just a single day ###
 
 #boost.pred = predict(boost.fit, n.trees = 100 ,newdata = df.test.sub[which(df.test.sub$day_of_year_appointment == 50),] )    
 boost.pred = predict(boost.fit, n.trees = 100 ,newdata = df.test.sub)
+
 pred     <- ifelse(log(boost.pred) > 0.2444953, 1, 0)
+
 # confusionMatrix(pred, df.test.sub[which(df.test.sub$day_of_year_appointment == 24),]$show_up)
 confusionMatrix(pred, df.test.sub$show_up)
 ```
