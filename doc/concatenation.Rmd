@@ -9,6 +9,7 @@ library(caret)
 library(glmnet)
 library(leaps)
 library(randomForest)
+library(gbm)
 ```
 
 
@@ -132,10 +133,33 @@ rf.fit <- randomForest(show_up~.,
 ```
 
 ```{r}
-err <- rf.fit$err.rate
+err <- rf.fit$err.rate[,]
+nb_trees <- seq(1:1000)
+err <- as.data.frame(cbind(err, nb_trees))
+
+ggplot(err, aes(x=nb_trees, y=OOB)) +
+  geom_line() +
+  ggtitle("Out-Of-Bag Error depending on the number of trees")
 ```
 
+The out-of-bag error is a good approximation of the out of sample event. It allows us to not use cross-validation which necessites a huge computation power.  
+We see that augmenting the number of trees isn't helping much. The out-of-bag error is bounded to ~29%.  
 
+**Boosting**
+Doesn't work
+```{r}
+boost.fit <- gbm(show_up~., 
+                 data=df.train.sub,
+                 distribution="bernoulli",
+                 n.trees=100,
+                 interaction.depth=1,
+                 shrinkage=0.01)
+```
+
+```{r}
+boost.fit
+summary(boost.fit)
+```
 
 
 
