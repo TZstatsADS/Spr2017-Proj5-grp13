@@ -132,14 +132,10 @@ rf.fit <- randomForest(show_up~.,
 ```
 
 ```{r}
-rf.pred <- predict(rf.fit, 
-                   df.train.sub, 
-                   type="class")
-table(rf.pred, df.train$show_up)
-1-mean(rf.pred==df.train$show_up)
-```
-
-```{r}
 err <- rf.fit$err.rate
 ```
+
+
+
+
 
