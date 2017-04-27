@@ -1,16 +1,19 @@
-# ADS Project 5: 
+# ADS Project 5: Medical Appointment No Shows
 
 Term: Spring 2017
 
-+ Team #
-+ Projec title: Lorem ipsum dolor sit amet
++ Team 13#
++ Projec title: Why do 30% of patients miss their scheduled appointments?
 + Team members
-	+ team member 1
-	+ team member 2
-	+ team member 3
-	+ team member 4
-	+ team member 5
-+ Project summary: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+	+ Ken Chew
+	+ Marie Schiltz
+	+ Raphael Ruscassie
++ Project summary: The context is the following; A person makes a doctor appointment, receives all the instructions and no-show. This study analyse medical appointment data for 300k appointments during a period of two years in 2014 and 2015.
+The study includes the following:
+- Description of dataset
+- Exploratory analysis
+- Predictive model
+- Business insights
 	
 **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
