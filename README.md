@@ -12,10 +12,10 @@ Term: Spring 2017
 
 + Project summary: The context is the following; A person makes a doctor appointment, receives all the instructions and no-show. This study analyse medical appointment data for 300k appointments during a period of two years in 2014 and 2015.
 The study includes the following:
-- Description of dataset
-- Exploratory analysis
-- Predictive model
-- Business insights
+	- Description of dataset
+	- Exploratory analysis
+	- Predictive model
+	- Business insights
 	
 **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
