@@ -2,12 +2,14 @@
 
 Term: Spring 2017
 
-+ Team 13#
-+ Projec title: Why do 30% of patients miss their scheduled appointments?
+
++ Project title: Why do 30% of patients miss their scheduled appointments?
+
 + Team members
 	+ Ken Chew
 	+ Marie Schiltz
 	+ Raphael Ruscassie
+
 + Project summary: The context is the following; A person makes a doctor appointment, receives all the instructions and no-show. This study analyse medical appointment data for 300k appointments during a period of two years in 2014 and 2015.
 The study includes the following:
 - Description of dataset
