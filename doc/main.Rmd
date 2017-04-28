@@ -3,8 +3,9 @@ title: "Project 5 - Understanding No-Shows for Physicians' Appointment"
 author: "Team 13"
 date: "April 27, 2017"
 output:
-  pdf_document: default
+  html_document: default
   html_notebook: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -401,9 +402,9 @@ dataset %>%
     ylab("Percentage of No-Show") +
     ggtitle("Percentage of No-Show per Day")
 ```
-
+  
 Using a daily granularity, we observe a high variance that makes the graph difficult to interpret. Let's change modify the graph by using a weekly granularity.  
-
+  
 ```{r}
 dataset %>% 
   group_by(week_of_year_appointment, year_appointment) %>% 
@@ -417,10 +418,11 @@ dataset %>%
     ylab("Percentage of No-Show") +
     ggtitle("Percentage of No-Show per Week")
 ```
-
-On a weekly basis we have more or less the same observations: we don't see any correlation between the date and the no-show ratio having a year window. 
-
+  
+On a weekly basis we have more or less the same observations: we don't see any correlation between the date and the no-show ratio having a year window.  
+  
 The natural next step is to look at the same ratio vs weekdays. It sounds pretty intuitive that there are some information to extract.
+  
 ```{r}
 by_day_of_week = group_by(dataset, weekday_appointment)
 by_day = summarise(by_day_of_week, 
@@ -442,10 +444,10 @@ qplot(weekday_appointment, ratio, data = by_day,
       main = "Percentage of No-Show depending on the Day")
 
 ```
-
+   
 We clearly see a trend here: the ratio is extremely high on Saturday! It jumps from 30 to 37%. Sunday is not significant because very few people have appointment on Sundays.    
-
-Let us have a look ot the moment in the day the patient register for the appointment.
+   
+Let us have a look ot the moment in the day the patient register for the appointment.   
 ```{r}
 by_hour <- group_by(dataset, hour_registration)
 by_hour <- summarise(by_hour, 
@@ -465,6 +467,7 @@ ggplot(data=by_hour[by_hour$hour_registration>5,][by_hour$hour_registration<21,]
 We notice that people calling very early (<6am) in the morning are more likely to show up compared to people calling late at night (>7pm). 
 
 Another important aspect in the time dimension is the time difference between the moment they register for the appointment and the appointment date. 
+   
 ```{r}
 by_diff <- group_by(dataset, daydiff_regist_appt)
 by_diff <- summarise(by_diff, 
@@ -479,8 +482,9 @@ ggplot(data = by_diff, aes(x = daydiff_regist_appt, y = ratio)) +
   ggtitle("Percentage of No-Show depending on the number of Waiting Days")
 
 ```
-
+   
 We first notice that the curve is extremely heratic after a certain value due to the number of datapoints. Let us zoom in the 0-120 days window. A waiting time of more than 120 days is really rare, so the second part od the curve isn't significant.  
+  
 ```{r}
 by_diff <- group_by(dataset, daydiff_regist_appt)
 by_diff <- summarise(by_diff, 
@@ -585,12 +589,10 @@ summary(lm(ratio ~ lowest_visibility, data = by_temp))
 ```
 
 Visibility IS correlated with the ratio. We observe that the ratio decrease when the lowest visibility of the day increase. We obtain a good p-value of 3% for this correlation.
-
-
+  
 We conclude from this analysis that among all weather variables we found, the only feature that is more strongly correlated with the ratio is the lowest visibility of the day.  
    
-   
-   ### Prediction Part
+### Prediction Part
 
 Goal:  
 Now that we understand the characteristics of the dataset and the significance of explanatory variables through plots and regression analysis, we now move on to trying to predict the probability of a given patient to not show up. The motivation behind this is 2-fold:  
@@ -678,6 +680,7 @@ However, this analysis straighten some of our previous points: age, daydiff_regi
 Let us now focus on the predictive model. Apparently, after this preliminary analysis, linear correlation don't explain enough to use it as a predictive model. Thus, let us focus on tree-based algorithm.    
   
 **Tree-base method**   
+We will try to fit a Random Forest first.  
   
 ```{r}
 set.seed(23)
@@ -777,7 +780,7 @@ table(boost.pred, df.test.sub$show_up)
 
 The boosting model doesn't help. It predicts 1 every time because the predicted probabilities are very high. We can try to change the threshold.       
    
-Now we try to optimize the threshold to select for high specificity/true negativity rate - ultimately, we want a high confidence of correctly predicting the number of no-shows for any given day.    
+Going back to the random forest model, we try to optimize the threshold to select for high specificity/true negativity rate - ultimately, we want a high confidence of correctly predicting the number of no-shows for any given day.    
 Hence, we are not looking at accuracy but at specificity.    
   
 ```{r}
