@@ -7,25 +7,24 @@ output:
   html_notebook: default
   pdf_document: default
 ---
-
+   
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
-
-### Project Description
-A person makes a doctor appointment, receives all the instructions and does not show up. Who to blame? Can data science help provide a solution?
-  
-### Why did we choose this project?
-Healthcare costs in the US took up 17.8% of GDP in 2016. Given this high cost, any form of systemic improvements can drive tremendous savings. To this end, many operations research projects have focused on how to improve processes at healthcare providers (clinics, hospitals). 
-
-As OR students, the latest hooha of United forcibly "re-accommodating" a customer was definitely an interesting one on many levels,  particularly because it shone a spotlight on a very common revenue maximizing practice - overbooking. 
-
-Like airplane seats, doctor appointments are "perishable goods" - once passed, the time lost due to a no-show is irretrievable. According to a study done, the estimated cost to a community hospital per year due to no-show is approximately $3 million. There is definitely an imperative to devise a solution, but would overbooking be feasible in an industry like healthcare? We decided to test our hypothesis on a dataset shared by a hospital from Brazil.
-
-  
-### Dataset Description
-Those data have been recorded in the state of Espirito Santo, Brazil. Datapoints are only from the public sector, primary care.  
-
+   
+### Project Description   
+A person makes a doctor appointment, receives all the instructions and does not show up. Who to blame? Can data science help provide a solution?   
+    
+### Why did we choose this project?   
+Healthcare costs in the US took up 17.8% of GDP in 2016. Given this high cost, any form of systemic improvements can drive tremendous savings. To this end, many operations research projects have focused on how to improve processes at healthcare providers (clinics, hospitals).    
+    
+As OR students, the latest hooha of United forcibly "re-accommodating" a customer was definitely an interesting one on many levels,  particularly because it shone a spotlight on a very common revenue maximizing practice - overbooking.    
+    
+Like airplane seats, doctor appointments are "perishable goods" - once passed, the time lost due to a no-show is irretrievable. According to a study done, the estimated cost to a community hospital per year due to no-show is approximately $3 million. There is definitely an imperative to devise a solution, but would overbooking be feasible in an industry like healthcare? We decided to test our hypothesis on a dataset shared by a hospital from Brazil.   
+    
+### Dataset Description     
+Those data have been recorded in the state of Espirito Santo, Brazil. Datapoints are only from the public sector, primary care.     
+    
 *Description of the dataset*   
 - Age: Age of the patient  
 - Gender: Gender of the patient  
@@ -39,15 +38,15 @@ Those data have been recorded in the state of Espirito Santo, Brazil. Datapoints
 - Scholarship: Is the patient receiving a scholarship? Those scholarships are given by Bolsa Familia to low income families who accept to send their kids to school nd have them vaccinated.   
 - Tuberculosis: Is the patient affected by tuberculosis? (0/1)  
 - AwaitingTime: How many days the patient waited between the appointment registration and the date of the appointment  
-- Status: Did the patient show-up or not? (No-Show/Show-Up)  
-  
+- Status: Did the patient show-up or not? (No-Show/Show-Up)   
+     
 *Source*    
-It's a kaggle dataset which have been taken here. https://www.kaggle.com/joniarroba/noshowappointments
-
-### Data Cleaning
-
-**Step 0: Load Packages**
-
+It's a kaggle dataset which have been taken here. https://www.kaggle.com/joniarroba/noshowappointments    
+    
+### Data Cleaning    
+    
+**Step 0: Load Packages**    
+    
 ```{r, message=FALSE}
 library(plyr)
 library(dplyr)
@@ -61,19 +60,19 @@ library(leaps)
 library(randomForest)
 library(gbm)
 ```
-
-**Step 1: Load Dataset**
+    
+**Step 1: Load Dataset**    
 ```{r}
 # Medical Dataset
 dataset <- read.csv("../data/No-show-Issue-Comma-300k.csv")
 ```
-
-**Step 2: Clean & Organize Dataset**
+    
+**Step 2: Clean & Organize Dataset**    
 ```{r}
 # Check Format
 str(dataset)
 ```
-
+    
 ```{r}
 # Update Columns Names
 colnames(dataset) <- c("age", "gender", "appointment_registration", 
@@ -92,12 +91,12 @@ dataset$smoker <- factor(dataset$smoker)
 dataset$scholarship <- factor(dataset$scholarship)
 dataset$tuberculosis <- factor(dataset$tuberculosis)
 ```
-
+    
 ```{r}
 # Check Values
 summary(dataset)
 ```
-
+    
 ```{r}
 # Data Cleaning
 
@@ -143,18 +142,18 @@ dataset$month_appointment <- as.numeric(format(dataset$appointment_date,"%m"))
 dataset$day_of_year_appointment <- as.numeric(format(dataset$appointment_date,"%j"))
 dataset$week_of_year_appointment <- as.numeric(format(dataset$appointment_date,"%U"))
 ```
-
-### Exploratory Data Analysis
-
-**Number of Datapoints**
+    
+### Exploratory Data Analysis   
+   
+**Number of Datapoints**    
 ```{r}
 # Number of rows
 nb_rows <- nrow(dataset)
 ```  
-We have access to 300k datapoints.  
-
-**Prediction Variable**  
-Let's first analyse the prediction variable alone.    
+We have access to 300k datapoints.     
+    
+**Prediction Variable**     
+Let's first analyse the prediction variable alone.       
 ```{r}
 ggplot(dataset, aes(x = show_up, fill=show_up)) +
   geom_bar() +
@@ -164,11 +163,11 @@ ggplot(dataset, aes(x = show_up, fill=show_up)) +
   scale_fill_discrete("Show-up", labels=c("No", "Yes")) +
   scale_x_discrete(labels=c("No", "Yes"))
 ```  
-
+      
 On the 300k datapoints we have, one third of them are No-Show Datapoints.   
-From a data science point of view, we have unbalanced classes, we will have to deal with it when doing predictions.   
-
-**Timeframe & Number of Datapoints per Day**   
+From a data science point of view, we have unbalanced classes, we will have to deal with it when doing predictions.     
+     
+**Timeframe & Number of Datapoints per Day**     
 ```{r}
 dataset %>% 
   group_by(appointment_date) %>% 
@@ -180,10 +179,10 @@ dataset %>%
     ggtitle("Number of Patients per Date") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```   
-
-We have access to 2 years of data from January 2014 to December 2015. The number of datapoints per date is around constant. Outliers are Sundays.  
-
-**Gender Analysis**   
+     
+We have access to 2 years of data from January 2014 to December 2015. The number of datapoints per date is around constant. Outliers are Sundays.     
+    
+**Gender Analysis**    
 ```{r}
 gender_number <- ggplot(dataset, aes(x=gender)) +
   geom_bar() +
@@ -198,10 +197,10 @@ gender_ratio <- ggplot(dataset, aes(x=gender, fill=show_up)) +
 
 grid.arrange(gender_number, gender_ratio, ncol=2, top="Gender Analysis")
 ```    
-
-The first insight is that women are more often going to visit a physician. However the ration of no-show/show are really similar. Gender doesn't seem to play an important role.  
-
-**Age Analysis**   
+    
+The first insight is that women are more often going to visit a physician. However the ration of no-show/show are really similar. Gender doesn't seem to play an important role.     
+   
+**Age Analysis**     
 ```{r}
 dataset %>% 
   group_by(age) %>% 
@@ -212,9 +211,9 @@ dataset %>%
     ylab("Number of Patients") +
     ggtitle("Number of Patients depending on the Age")
 ```     
-
-On the first graph, we display the number of patient depending on the age to know what the sample we have look like. After 60 years old, people begin to die, and hence there are less patients. We see on the representation of the ife expectancy of people in Brazil whicih is comprised between 60 and 100 years old. (The life expectancy in Brazil is 73.8 years old).   
-   
+    
+On the first graph, we display the number of patient depending on the age to know what the sample we have look like. After 60 years old, people begin to die, and hence there are less patients. We see on the representation of the ife expectancy of people in Brazil whicih is comprised between 60 and 100 years old. (The life expectancy in Brazil is 73.8 years old).     
+      
 ```{r}
 ggplot(dataset, aes(x=show_up, y=age, fill=show_up)) + 
   geom_boxplot() +
@@ -224,9 +223,9 @@ ggplot(dataset, aes(x=show_up, y=age, fill=show_up)) +
   scale_fill_discrete("Show-up", labels=c("No", "Yes")) +
   scale_x_discrete(labels=c("No", "Yes"))
 ```    
-
-The age seems to be a important factor. The older the people are the more likely they are going to show up.    
-   
+      
+The age seems to be a important factor. The older the people are the more likely they are going to show up.      
+      
 ```{r}
 by_age <-
   dataset %>%
@@ -238,10 +237,10 @@ ggplot(data = by_age, aes(x = age, y = ratio)) +
   geom_line() + 
   geom_smooth(method = "glm")
 ```    
-
-Above, we can see the same trend. After 95 years old the figures are not significant because the sample is too small. Hence only the first part of the graph can be interpreted.    
-   
-**Age & Gender Analysis**   
+      
+Above, we can see the same trend. After 95 years old the figures are not significant because the sample is too small. Hence only the first part of the graph can be interpreted.      
+     
+**Age & Gender Analysis**     
 ```{r}
 ggplot(data = dataset, aes(x = age, fill = show_up)) + 
   geom_bar() + 
@@ -251,10 +250,10 @@ ggplot(data = dataset, aes(x = age, fill = show_up)) +
   ggtitle("Number of Patients showing up depending on Age and Gender") +
   scale_fill_discrete("Show-up", labels=c("No", "Yes"))
 ```     
-
+    
 The ratio is similar between woman and man. We see again that women take more appointments. However we see that before 20 years old the number of appointments and the trend is exactly the same.    
    
-**Health Conditions Analysis**   
+**Health Conditions Analysis**     
 ```{r}
 diabetes <- ggplot(dataset, aes(x=diabetes, fill=show_up)) + 
   geom_bar(position="fill") +
@@ -289,11 +288,11 @@ tuberculosis <- ggplot(dataset, aes(x=tuberculosis, fill=show_up)) +
 grid.arrange(diabetes, tuberculosis, hypertension, handicap, smoker,
              alcoholism, ncol=2, top='Health Conditions')
 ```      
-
-Form this first anaysis, we can conclude that people having a handicap are more likely to show up, going further the more severe is there handicap the more likely they are going to show up. The same trand is observed for people havnig diabete or hypertension.  
-However for smokers, alcoholic people and people suffering from tuberculosis, the trend is reverse.  
-To validate this insights, we need to look at the samples size, which we are going to do below.  
-   
+     
+Form this first anaysis, we can conclude that people having a handicap are more likely to show up, going further the more severe is there handicap the more likely they are going to show up. The same trand is observed for people havnig diabete or hypertension.     
+However for smokers, alcoholic people and people suffering from tuberculosis, the trend is reverse.     
+To validate this insights, we need to look at the samples size, which we are going to do below.    
+     
 ```{r}
 diabetes <- ggplot(dataset, aes(x=diabetes, fill=show_up)) + 
   geom_bar() +
@@ -328,10 +327,10 @@ tuberculosis <- ggplot(dataset, aes(x=tuberculosis, fill=show_up)) +
 grid.arrange(diabetes, tuberculosis, hypertension, handicap, smoker,
              alcoholism, ncol=2, top='Health Conditions')
 ```     
-
-As we were expected, we always have less sick people. The number of people having tuberculosis is so low that the ratio we analyzed earlier should not to be taken into account.   
-   
-**SMS Reminder**    
+    
+As we were expected, we always have less sick people. The number of people having tuberculosis is so low that the ratio we analyzed earlier should not to be taken into account.     
+      
+**SMS Reminder**      
 ```{r}
 smsreminder_number <- ggplot(dataset, aes(x=sms_reminder)) +
   geom_bar() +
@@ -346,10 +345,10 @@ smsreminder_ratio <- ggplot(dataset, aes(x=sms_reminder, fill=show_up)) +
 
 grid.arrange(smsreminder_number, smsreminder_ratio, ncol=2, top="Sms Reminder")
 ```     
-
-There is no strong pattern associated with the sending of a sms reminder. Without taking into account people that received 2 sms (too few people), we notice that the ration is really similar. However we don't know if those sms are sent randomnly or not.   
-
-**Scholarship Analysis**   
+      
+There is no strong pattern associated with the sending of a sms reminder. Without taking into account people that received 2 sms (too few people), we notice that the ration is really similar. However we don't know if those sms are sent randomnly or not.     
+      
+**Scholarship Analysis**     
 ```{r}
 smsreminder_number <- ggplot(dataset, aes(x=scholarship)) +
   geom_bar() +
@@ -364,12 +363,12 @@ smsreminder_ratio <- ggplot(dataset, aes(x=scholarship, fill=show_up)) +
 
 grid.arrange(smsreminder_number, smsreminder_ratio, ncol=2, top="Scholarship")
 ```     
-  
-We did explain at the beginning of this file what scholarship meant, it's basically linked to the level of income of the family. We see that this feature have a strong impact.  
-
-**Time Analysis**
-
-Overview of the dataset per date.  
+     
+We did explain at the beginning of this file what scholarship meant, it's basically linked to the level of income of the family. We see that this feature have a strong impact.     
+    
+**Time Analysis**    
+   
+Overview of the dataset per date.    
 ```{r}
 dataset$year_appointment <- as.numeric(format(dataset$appointment_date,"%Y"))
 
@@ -384,11 +383,11 @@ dataset %>%
     ylab("Number of Appointments") +
     ggtitle("Number of Appointments per Day")
 ```
-
-We observe a very small trend: people schedule slightly more medical appointment during the first half of the year. 
-
-Now, to explain a little bit how time influences our variable of interest, we show the evolution of the noshow ratio through the period we are studying.
-
+    
+We observe a very small trend: people schedule slightly more medical appointment during the first half of the year.      
+     
+Now, to explain a little bit how time influences our variable of interest, we show the evolution of the noshow ratio through the period we are studying.    
+     
 ```{r}
 dataset %>% 
   group_by(day_of_year_appointment, year_appointment) %>% 
@@ -402,9 +401,9 @@ dataset %>%
     ylab("Percentage of No-Show") +
     ggtitle("Percentage of No-Show per Day")
 ```
-  
-Using a daily granularity, we observe a high variance that makes the graph difficult to interpret. Let's change modify the graph by using a weekly granularity.  
-  
+     
+Using a daily granularity, we observe a high variance that makes the graph difficult to interpret. Let's change modify the graph by using a weekly granularity.     
+     
 ```{r}
 dataset %>% 
   group_by(week_of_year_appointment, year_appointment) %>% 
@@ -418,11 +417,11 @@ dataset %>%
     ylab("Percentage of No-Show") +
     ggtitle("Percentage of No-Show per Week")
 ```
-  
-On a weekly basis we have more or less the same observations: we don't see any correlation between the date and the no-show ratio having a year window.  
-  
-The natural next step is to look at the same ratio vs weekdays. It sounds pretty intuitive that there are some information to extract.
-  
+      
+On a weekly basis we have more or less the same observations: we don't see any correlation between the date and the no-show ratio having a year window.     
+     
+The natural next step is to look at the same ratio vs weekdays. It sounds pretty intuitive that there are some information to extract.    
+     
 ```{r}
 by_day_of_week = group_by(dataset, weekday_appointment)
 by_day = summarise(by_day_of_week, 
@@ -444,10 +443,11 @@ qplot(weekday_appointment, ratio, data = by_day,
       main = "Percentage of No-Show depending on the Day")
 
 ```
+      
+We clearly see a trend here: the ratio is extremely high on Saturday! It jumps from 30 to 37%. Sunday is not significant because very few people have appointment on Sundays.       
+      
+Let us have a look ot the moment in the day the patient register for the appointment.     
    
-We clearly see a trend here: the ratio is extremely high on Saturday! It jumps from 30 to 37%. Sunday is not significant because very few people have appointment on Sundays.    
-   
-Let us have a look ot the moment in the day the patient register for the appointment.   
 ```{r}
 by_hour <- group_by(dataset, hour_registration)
 by_hour <- summarise(by_hour, 
@@ -463,11 +463,11 @@ ggplot(data=by_hour[by_hour$hour_registration>5,][by_hour$hour_registration<21,]
   ylab("Percentage of No-Show") +
   ggtitle("Percentage of No-Show depending on the Time of the Day")
 ```
-
-We notice that people calling very early (<6am) in the morning are more likely to show up compared to people calling late at night (>7pm). 
-
-Another important aspect in the time dimension is the time difference between the moment they register for the appointment and the appointment date. 
-   
+     
+We notice that people calling very early (<6am) in the morning are more likely to show up compared to people calling late at night (>7pm).    
+     
+Another important aspect in the time dimension is the time difference between the moment they register for the appointment and the appointment date.      
+      
 ```{r}
 by_diff <- group_by(dataset, daydiff_regist_appt)
 by_diff <- summarise(by_diff, 
@@ -482,9 +482,9 @@ ggplot(data = by_diff, aes(x = daydiff_regist_appt, y = ratio)) +
   ggtitle("Percentage of No-Show depending on the number of Waiting Days")
 
 ```
-   
-We first notice that the curve is extremely heratic after a certain value due to the number of datapoints. Let us zoom in the 0-120 days window. A waiting time of more than 120 days is really rare, so the second part od the curve isn't significant.  
-  
+      
+We first notice that the curve is extremely heratic after a certain value due to the number of datapoints. Let us zoom in the 0-120 days window. A waiting time of more than 120 days is really rare, so the second part od the curve isn't significant.    
+    
 ```{r}
 by_diff <- group_by(dataset, daydiff_regist_appt)
 by_diff <- summarise(by_diff, 
@@ -502,26 +502,26 @@ ggplot(data = by_diff[by_diff$daydiff_regist_appt<120,],
   ggtitle("Percentage of No-Show depending on the number of Waiting Days")
 
 ```
-
-It seems that we have a good model using a polynomial regression as follow:
-
+    
+It seems that we have a good model using a polynomial regression as follow:   
+   
 ```{r}
 summary(lm(ratio~daydiff_regist_appt + daydiff_regist_appt_squared, by_diff[by_diff$daydiff_regist_appt<120,]))
 ```
-
-We see that the polynomial model fit pretty well this part of the curve with 2 p-values extremely low, which is good.  
-
-**Weather Analysis**
-
-In this part, we want to assess the impact of the weather on attendance of patients. We webscraped data about the weather in this specific city during the period of the analysis; and we look for any correlation between the level of precipitation, the temperature, the visibility, the wind speed and the noshow ratio previously described.  
-The webscrabing code can be foudn in the lib folder (Weather scrapping.ipynb).  
-
+    
+We see that the polynomial model fit pretty well this part of the curve with 2 p-values extremely low, which is good.     
+   
+**Weather Analysis**     
+       
+In this part, we want to assess the impact of the weather on attendance of patients. We webscraped data about the weather in this specific city during the period of the analysis; and we look for any correlation between the level of precipitation, the temperature, the visibility, the wind speed and the noshow ratio previously described.      
+The webscrabing code can be foudn in the lib folder (Weather scrapping.ipynb).      
+       
 ```{r}
 # Load Weather data
 load("../output/with_weather_dataset.RData")
 ```
-
-*Precipitation level*
+     
+*Precipitation level*      
 ```{r}
 by_temp <- group_by(dataset, appointment_date)
 by_temp <- summarise(by_temp, 
@@ -543,10 +543,10 @@ qplot( max_precipitation_inches, ratio,
 summary(lm(ratio~max_precipitation_inches, 
            data = by_temp[by_temp$max_precipitation_inches<2,]))
 ```
-
-Each point on the graph represent one day. We note that there is no strong correlation between the ratio and the precipitation level.  
-
-*Temperature*
+      
+Each point on the graph represent one day. We note that there is no strong correlation between the ratio and the precipitation level.     
+      
+*Temperature*     
 ```{r}
 qplot(max_temp, 
       ratio, 
@@ -558,11 +558,10 @@ qplot(max_temp,
 
 summary(lm(ratio ~ max_temp, data = by_temp))
 ```
-
-Same result with the temperature.
-
-
-*Wind*
+     
+Same result with the temperature.    
+     
+*Wind*      
 ```{r}
 qplot(wind, 
       ratio, 
@@ -572,10 +571,10 @@ qplot(wind,
 
 summary(lm(ratio ~ wind, data = by_temp))
 ```
-
-Just like the two first variables, the wind speed is not correlated with the No-Show ratio. 
-
-*Visibility*
+     
+Just like the two first variables, the wind speed is not correlated with the No-Show ratio.    
+     
+*Visibility*      
 ```{r}
 qplot(lowest_visibility, 
       ratio, 
@@ -587,21 +586,21 @@ qplot(lowest_visibility,
 
 summary(lm(ratio ~ lowest_visibility, data = by_temp))
 ```
-
-Visibility IS correlated with the ratio. We observe that the ratio decrease when the lowest visibility of the day increase. We obtain a good p-value of 3% for this correlation.
-  
-We conclude from this analysis that among all weather variables we found, the only feature that is more strongly correlated with the ratio is the lowest visibility of the day.  
-   
-### Prediction Part
-
-Goal:  
-Now that we understand the characteristics of the dataset and the significance of explanatory variables through plots and regression analysis, we now move on to trying to predict the probability of a given patient to not show up. The motivation behind this is 2-fold:  
-  
+     
+Visibility IS correlated with the ratio. We observe that the ratio decrease when the lowest visibility of the day increase. We obtain a good p-value of 3% for this correlation.    
+      
+We conclude from this analysis that among all weather variables we found, the only feature that is more strongly correlated with the ratio is the lowest visibility of the day.     
+      
+### Prediction Part    
+    
+Goal:     
+Now that we understand the characteristics of the dataset and the significance of explanatory variables through plots and regression analysis, we now move on to trying to predict the probability of a given patient to not show up. The motivation behind this is 2-fold:    
+     
 1) If we know that a patient is very likely to not show-up given some characteristics at the very point he/she books an appointment, we can incentivise the patient to show-up or to perhaps redirect the patient to a certain part of the day to facilitate handling no-shows on an aggregate level.  
   
 2) If we know the number of patients who are very likely to not show up, we can come up with several strategies which are similar to overbooking so as to increase utilization of resources.   
   
-**Feature Creation**   
+**Feature Creation**     
 ```{r}
 # This feature is created because of the graph: "Percentage of No-Shows depending on the waiting days" in the Exploratory Data Analysis
 dataset$daydiff_regist_appt_squared <- dataset$daydiff_regist_appt**2
@@ -691,7 +690,7 @@ fit.tree = randomForest(show_up~.,
                         ntree=100)
 fit.tree
 ```
-
+    
 ```{r}
 importance(fit.tree)[,4]
 ```
@@ -702,6 +701,7 @@ The more important variables are the same as the on highlighted above:
 - The number of days between the registration and the appointment  
    
 Let's look at this model on the test set:   
+   
 ```{r}
 rf.pred <- predict(fit.tree, 
                    df.test.sub, 
@@ -760,7 +760,7 @@ boost.fit <- gbm(show_up~.,
 boost.fit
 summary(boost.fit)
 ```
-
+    
 ```{r}
 boost.fit$train.error[100]
 ```
@@ -777,8 +777,8 @@ boost.pred[boost.probs >.5] <- 1
 table(boost.pred, df.test.sub$show_up)
 1-mean(boost.pred==df.test.sub$show_up)
 ```
-
-The boosting model doesn't help. It predicts 1 every time because the predicted probabilities are very high. We can try to change the threshold.       
+     
+The boosting model doesn't help. It predicts 1 every time because the predicted probabilities are very high. We can try to change the threshold.        
    
 Going back to the random forest model, we try to optimize the threshold to select for high specificity/true negativity rate - ultimately, we want a high confidence of correctly predicting the number of no-shows for any given day.    
 Hence, we are not looking at accuracy but at specificity.    
@@ -809,41 +809,41 @@ ggplot(boost.thresholdsDF, aes(x=ThresholdsList, y=Boost.specificity)) +
   geom_line() +
   ggtitle("Out-Of-Bag Error depending on the number of trees")
 ```
-
+     
 Some threshods give very good values of specificity. However, each threshold below 0.07 is able to predict less than 50 No-Shows out of ~26,000 No-Shows which is not helpful.    
- 
-
-### Business Value  
-  
-####Introduction  
-First of all, from the Exploratory analysis we can have a sense of the importance of this issue.   
-Very roughly, if we consider that an average medical appointment costs USD 20 to the government (government's cost), that 60% consulted a doctor in a public health establishment and that 80% of the population consult a doctor every year; having 30% of patients not showing up at represent more that USD 550M.   
-Knowing that 9% of Brazilian GDP is spent in the SUS (Sistema Único de Saúde), the large, public, government managed health care system; this shortfall represent a minimum of **2.5%** of total expenses in this sector.   
-We understand now the significance of this problem for the Brazilian government and the SUS organization.  
    
-####Exploratory Data Analysis  
-Using our very first analysis, we have some good insights and statistics on the problem and how the SUS can tackle this issue.    
-- **Age**: our very first insight is that the chunk of the population between 20 and 45 years old have a higher no show rate that the rest of the population. On top of this, this chunk represent the largest part of the population. This part of the population represent 40% of total appointment missed (USD 220M). Raising awareness among this population alone will bring tremendous value.   
-- **Day difference between registration and appointment date**: we noticed that the no show ratio follow a concave parabolic curve centered in 55 days. So people registering for appointments in less than 10 days and in more than 80 days are showing up more than average. On the other hand, people located between 10 and 80 are more likely to miss their appointment. Thus, a very straighforward way to improve the no show ratio is to have different process for different period in time.    
-- **Hour of registration**: We finally noticed that people registering late are more likely to miss their appointment whereas people colling very early are more showing up. Changing the process on that aspect can help to improve the ratio as well.   
-    
-####Predictive model    
-On the predictive side, to evaluate the value of building a prediction model to, we can look at use cases at the individual and day-aggregated level.   
    
-#####Individual level   
-At the individual level, we can use a prediction model which only includes features that is fully known at the point of appointment booking (no weather in this case) to categorize if a patient is considered higher-risk above a certain threshold. This allows us to do two things:   
-- Focus resources on providing more interventions (even more sms and calls) to increase likelihood of patient showing up. Or to confirm if patient is not going to show-up 2 days before appointment.   
+### Business Value    
+     
+####Introduction    
+First of all, from the Exploratory analysis we can have a sense of the importance of this issue.      
+Very roughly, if we consider that an average medical appointment costs USD 20 to the government (government's cost), that 60% consulted a doctor in a public health establishment and that 80% of the population consult a doctor every year; having 30% of patients not showing up at represent more that USD 550M.     
+Knowing that 9% of Brazilian GDP is spent in the SUS (Sistema Único de Saúde), the large, public, government managed health care system; this shortfall represent a minimum of **2.5%** of total expenses in this sector.     
+We understand now the significance of this problem for the Brazilian government and the SUS organization.     
+     
+####Exploratory Data Analysis    
+Using our very first analysis, we have some good insights and statistics on the problem and how the SUS can tackle this issue.      
+- **Age**: our very first insight is that the chunk of the population between 20 and 45 years old have a higher no show rate that the rest of the population. On top of this, this chunk represent the largest part of the population. This part of the population represent 40% of total appointment missed (USD 220M). Raising awareness among this population alone will bring tremendous value.     
+- **Day difference between registration and appointment date**: we noticed that the no show ratio follow a concave parabolic curve centered in 55 days. So people registering for appointments in less than 10 days and in more than 80 days are showing up more than average. On the other hand, people located between 10 and 80 are more likely to miss their appointment. Thus, a very straighforward way to improve the no show ratio is to have different process for different period in time.      
+- **Hour of registration**: We finally noticed that people registering late are more likely to miss their appointment whereas people colling very early are more showing up. Changing the process on that aspect can help to improve the ratio as well.     
+      
+####Predictive model       
+On the predictive side, to evaluate the value of building a prediction model to, we can look at use cases at the individual and day-aggregated level.     
+      
+#####Individual level     
+At the individual level, we can use a prediction model which only includes features that is fully known at the point of appointment booking (no weather in this case) to categorize if a patient is considered higher-risk above a certain threshold. This allows us to do two things:     
+- Focus resources on providing more interventions (even more sms and calls) to increase likelihood of patient showing up. Or to confirm if patient is not going to show-up 2 days before appointment.     
 - Give dollar incentives to channel likely no-shows into morning/evening appointment slots so that most of the no-shows are clustered around a certain period of the day.
-   
-#####Day-aggregated level   
-At the day-aggregated level, we can use a prediction model which INCLUDES weather features given by meteorological forecasts, that is able to give us the number of no-shows for a given day at a 95% confidence level. This can be computed 2 days before the actual appointment date.    
-   
-All this information from above can help us implement a "pseudo-overbooking" policy: an opt-in waitlist. The opt-in waitlist can be generated for each appointment day, 2 days in advance and the length of the list = # people who rescheduled + (conservative) estimate of # predicted no-shows. Given that we have "consolidated" in advance the likely no-shows into a certain part of the day, we can ask the wait-listers to come at a specific window if they are willing to take the risk to have an earlier appointment.   
-    
-Even if we are only able to cut the number of no-shows from 30% to 25%, we can already generate an estimated savings of $0.5 million for a community hospital. The savings will be even greater for a larger hospital. Furthermore, we can generate customer satisfaction amongst those wait-listers who manage to get an earlier appointment.    
-   
-    
-Sources:    
+     
+#####Day-aggregated level     
+At the day-aggregated level, we can use a prediction model which INCLUDES weather features given by meteorological forecasts, that is able to give us the number of no-shows for a given day at a 95% confidence level. This can be computed 2 days before the actual appointment date.      
+      
+All this information from above can help us implement a "pseudo-overbooking" policy: an opt-in waitlist. The opt-in waitlist can be generated for each appointment day, 2 days in advance and the length of the list = # people who rescheduled + (conservative) estimate of # predicted no-shows. Given that we have "consolidated" in advance the likely no-shows into a certain part of the day, we can ask the wait-listers to come at a specific window if they are willing to take the risk to have an earlier appointment.     
+       
+Even if we are only able to cut the number of no-shows from 30% to 25%, we can already generate an estimated savings of $0.5 million for a community hospital. The savings will be even greater for a larger hospital. Furthermore, we can generate customer satisfaction amongst those wait-listers who manage to get an earlier appointment.      
+     
+      
+Sources:      
 http://thebrazilbusiness.com/article/cost-of-health-services    
 http://www.scielo.br/pdf/csc/v21n2/en_1413-8123-csc-21-02-0339.pdf    
 https://en.wikipedia.org/wiki/Health_systems_by_country#Brazil    
