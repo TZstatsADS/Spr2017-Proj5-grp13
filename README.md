@@ -17,7 +17,7 @@ The study includes the following:
 	- Predictive model
 	- Business insights     
 
-+ The main report of the analysis can be found [here](doc/Project 5 - Understanding No-Shows for Physicians’ Appointment.pdf).
++ The main report of the analysis can be found [here](https://github.com/TZstatsADS/Spr2017-Proj5-grp13/blob/master/doc/Project%205%20-%20Understanding%20No-Shows%20for%20Physicians%E2%80%99%20Appointment.pdf).
 	
 **Contribution statement**: All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
