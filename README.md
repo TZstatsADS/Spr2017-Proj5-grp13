@@ -16,7 +16,8 @@ The study includes the following:
 	- Exploratory analysis
 	- Predictive model
 	- Business insights     
-Here is the pdf version of [the analysis](https://github.com/TZstatsADS/Spr2017-Proj5-grp13/blob/master/doc/Project%205%20-%20Understanding%20No-Shows%20for%20Physicians’%20Appointment-1.pdf).
+
++ The main report of the analysis can be found [here](/doc/Project 5 - Understanding No-Shows for Physicians’ Appointment.pdf).
 	
 **Contribution statement**: All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
